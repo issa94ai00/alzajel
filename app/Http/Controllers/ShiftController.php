@@ -40,7 +40,7 @@ class ShiftController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $currencies = Currency::where('is_active', true)->where('is_base', false)->get();
+        $currencies = Currency::where('is_active', true)->get();
 
         return Inertia::render('Shifts/Open', [
             'currencies' => $currencies,
