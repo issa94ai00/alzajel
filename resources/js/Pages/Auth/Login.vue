@@ -1,9 +1,10 @@
 <script setup>
+import { ref } from 'vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
+import NavIcon from '@/Components/NavIcon.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
@@ -15,6 +16,8 @@ defineProps({
         type: String,
     },
 });
+
+const showPassword = ref(false);
 
 const form = useForm({
     email: '',
@@ -33,68 +36,86 @@ const submit = () => {
     <GuestLayout>
         <Head title="تسجيل الدخول" />
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-slate-900">تسجيل الدخول</h2>
+            <p class="mt-1 text-sm text-slate-500">أدخل بيانات حسابك للمتابعة إلى نظام إدارة الصرافة.</p>
+        </div>
+
+        <div v-if="status" class="mb-4 rounded-lg bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700">
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="submit" class="space-y-5">
             <div>
                 <InputLabel for="email" value="البريد الإلكتروني" />
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
+                <div class="relative mt-1.5">
+                    <span class="pointer-events-none absolute inset-y-0 start-3 flex items-center text-slate-400">
+                        <NavIcon name="mail" class="h-4.5 w-4.5" />
+                    </span>
+                    <TextInput
+                        id="email"
+                        type="email"
+                        class="block w-full ps-10"
+                        v-model="form.email"
+                        required
+                        autofocus
+                        autocomplete="username"
+                    />
+                </div>
 
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
+            <div>
                 <InputLabel for="password" value="كلمة المرور" />
 
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
+                <div class="relative mt-1.5">
+                    <span class="pointer-events-none absolute inset-y-0 start-3 flex items-center text-slate-400">
+                        <NavIcon name="lock" class="h-4.5 w-4.5" />
+                    </span>
+                    <TextInput
+                        id="password"
+                        :type="showPassword ? 'text' : 'password'"
+                        class="block w-full ps-10 pe-10"
+                        v-model="form.password"
+                        required
+                        autocomplete="current-password"
+                    />
+                    <button
+                        type="button"
+                        class="absolute inset-y-0 end-3 flex items-center text-slate-400 hover:text-slate-600"
+                        @click="showPassword = !showPassword"
+                    >
+                        <NavIcon :name="showPassword ? 'eye-off' : 'eye'" class="h-4.5 w-4.5" />
+                    </button>
+                </div>
 
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4 block">
-                <label class="flex items-center">
+            <div class="flex items-center justify-between">
+                <label class="flex items-center gap-2">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >تذكرني</span
-                    >
+                    <span class="text-sm text-slate-600">تذكرني</span>
                 </label>
-            </div>
 
-            <div class="mt-4 flex items-center justify-end">
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    class="text-sm text-slate-500 underline underline-offset-2 hover:text-slate-800"
                 >
                     نسيت كلمة المرور؟
                 </Link>
-
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    تسجيل الدخول
-                </PrimaryButton>
             </div>
+
+            <button
+                type="submit"
+                class="flex w-full items-center justify-center rounded-lg bg-[#141b4d] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0d1338] disabled:opacity-50"
+                :disabled="form.processing"
+            >
+                تسجيل الدخول
+            </button>
         </form>
     </GuestLayout>
 </template>

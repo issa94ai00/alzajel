@@ -12,14 +12,14 @@ function formatNumber(value) {
 </script>
 
 <template>
-    <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
         <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-500">{{ name }}</span>
-            <span class="rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">{{ code }}</span>
+            <span class="text-sm font-medium text-slate-500">{{ name }}</span>
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-600">{{ code.slice(0, 2) }}</span>
         </div>
-        <div class="mt-2 text-2xl font-bold text-gray-900">
+        <div class="mt-3 text-2xl font-bold text-slate-900">
             {{ formatNumber(balance) }}
-            <span class="text-base font-normal text-gray-400">{{ symbol }}</span>
+            <span class="text-base font-normal text-slate-400">{{ symbol }}</span>
         </div>
     </div>
 </template>
