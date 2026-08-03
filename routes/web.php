@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\ExchangeTransactionController;
@@ -39,6 +40,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/rates', [ExchangeRateController::class, 'index'])->name('rates.index');
         Route::put('/rates/{currency}', [ExchangeRateController::class, 'update'])->name('rates.update');
+
+        Route::resource('currencies', CurrencyController::class)->except(['show', 'destroy']);
 
         Route::resource('users', UserController::class)->except(['show']);
     });

@@ -35,5 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::put('/rates/{currency}', [ExchangeRateController::class, 'update']);
         Route::get('/reports/profit-loss', [ReportController::class, 'profitLoss']);
+
+        Route::get('/admin/currencies', [CurrencyController::class, 'adminIndex']);
+        Route::post('/admin/currencies', [CurrencyController::class, 'store']);
+        Route::put('/admin/currencies/{currency}', [CurrencyController::class, 'update']);
     });
 });

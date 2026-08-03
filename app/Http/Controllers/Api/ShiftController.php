@@ -43,7 +43,7 @@ class ShiftController extends Controller
 
         return [
             'currencies' => CurrencyResource::collection(
-                Currency::where('is_active', true)->where('is_base', false)->get()
+                Currency::where('is_active', true)->get()
             ),
             'current_shift_open' => (bool) $currentShift,
             'can_close_current' => $currentShift ? $request->user()->can('close', $currentShift) : false,

@@ -27,6 +27,7 @@ const navLinks = computed(() => {
 
     if (isAdmin.value) {
         links.push({ href: route('rates.index'), label: 'أسعار الصرف', icon: 'currency', current: 'rates.index' });
+        links.push({ href: route('currencies.index'), label: 'العملات', icon: 'coins', current: 'currencies.*' });
         links.push({ href: route('users.index'), label: 'المستخدمون', icon: 'users', current: 'users.*' });
     }
 
