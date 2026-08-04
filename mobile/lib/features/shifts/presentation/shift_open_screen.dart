@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/async_value_view.dart';
+import '../../../shared/widgets/gradient_button.dart';
 import '../application/shifts_providers.dart';
 
 class ShiftOpenScreen extends ConsumerStatefulWidget {
@@ -119,7 +120,7 @@ class _ShiftOpenScreenState extends ConsumerState<ShiftOpenScreen> {
                   ),
                 ),
               const SizedBox(height: 12),
-              FilledButton(
+              GradientButton(
                 onPressed: _submitting ? null : _submit,
                 child: _submitting
                     ? const SizedBox(

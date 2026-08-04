@@ -100,6 +100,17 @@ class ShiftService
         });
     }
 
+    /**
+     * @return array<int, string> currency_id => previous closing balance
+     */
+    public function previousClosingBalances(): array
+    {
+        return Currency::where('is_active', true)
+            ->get()
+            ->mapWithKeys(fn (Currency $currency) => [$currency->id => $this->previousClosingBalance($currency->id) ?? '0'])
+            ->all();
+    }
+
     private function previousClosingBalance(int $currencyId): ?string
     {
         $account = ShiftAccount::where('currency_id', $currencyId)

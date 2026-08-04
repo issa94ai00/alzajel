@@ -14,7 +14,7 @@ defineProps({
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">تسجيل عملية بيع/شراء</h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-white">تسجيل عملية بيع/شراء</h2>
         </template>
 
         <div class="py-8">

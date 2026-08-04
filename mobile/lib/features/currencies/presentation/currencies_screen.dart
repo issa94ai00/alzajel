@@ -17,6 +17,7 @@ class CurrenciesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('إدارة العملات')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'currencies-add-fab',
         onPressed: () => _showEditor(context, ref, currency: null),
         child: const Icon(Icons.add_rounded),
       ),

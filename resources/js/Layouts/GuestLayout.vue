@@ -5,7 +5,7 @@ const features = ['إدارة الورديات والصرافين', 'تتبع ا
 </script>
 
 <template>
-    <div class="flex min-h-screen bg-white">
+    <div class="flex min-h-screen bg-white dark:bg-slate-900">
         <!-- Brand panel -->
         <div class="relative hidden w-full max-w-md flex-col justify-between overflow-hidden bg-[#141b4d] px-10 py-12 lg:flex xl:max-w-lg">
             <div class="pointer-events-none absolute -top-24 -start-24 h-72 w-72 rounded-full bg-[#f2c94c]/10 blur-3xl"></div>
@@ -31,7 +31,7 @@ const features = ['إدارة الورديات والصرافين', 'تتبع ا
         <div class="flex w-full flex-1 flex-col items-center justify-center px-6 py-12 sm:px-10">
             <div class="mb-8 flex flex-col items-center lg:hidden">
                 <img src="/logo.png" alt="الزاجل" class="h-16 w-16 rounded-xl shadow-md" />
-                <p class="mt-3 text-lg font-bold text-slate-800">الزاجل</p>
+                <p class="mt-3 text-lg font-bold text-slate-800 dark:text-white">الزاجل</p>
                 <p class="text-xs text-slate-400">نظام إدارة الصرافة</p>
             </div>
 

@@ -18,6 +18,7 @@ class ShiftsListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('الورديات')),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'shifts-open-fab',
         onPressed: () => context.push('/shifts/open'),
         icon: const Icon(Icons.add_rounded),
         label: const Text('فتح وردية'),

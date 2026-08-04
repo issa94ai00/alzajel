@@ -6,6 +6,7 @@ import '../../../core/models/currency.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../features/shifts/application/shifts_providers.dart';
 import '../../../shared/widgets/async_value_view.dart';
+import '../../../shared/widgets/gradient_button.dart';
 import '../application/transactions_providers.dart';
 
 class TransactionCreateScreen extends ConsumerStatefulWidget {
@@ -157,7 +158,7 @@ class _TransactionCreateScreenState extends ConsumerState<TransactionCreateScree
                 decoration: const InputDecoration(labelText: 'ملاحظات (اختياري)'),
               ),
               const SizedBox(height: 20),
-              FilledButton(
+              GradientButton(
                 onPressed: _submitting ? null : _submit,
                 child: _submitting
                     ? const SizedBox(

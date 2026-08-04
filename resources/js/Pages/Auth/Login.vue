@@ -37,11 +37,11 @@ const submit = () => {
         <Head title="تسجيل الدخول" />
 
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-slate-900">تسجيل الدخول</h2>
-            <p class="mt-1 text-sm text-slate-500">أدخل بيانات حسابك للمتابعة إلى نظام إدارة الصرافة.</p>
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">تسجيل الدخول</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">أدخل بيانات حسابك للمتابعة إلى نظام إدارة الصرافة.</p>
         </div>
 
-        <div v-if="status" class="mb-4 rounded-lg bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700">
+        <div v-if="status" class="mb-4 rounded-lg bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
             {{ status }}
         </div>
 
@@ -50,7 +50,7 @@ const submit = () => {
                 <InputLabel for="email" value="البريد الإلكتروني" />
 
                 <div class="relative mt-1.5">
-                    <span class="pointer-events-none absolute inset-y-0 start-3 flex items-center text-slate-400">
+                    <span class="pointer-events-none absolute inset-y-0 start-3 flex items-center text-slate-400 dark:text-slate-500">
                         <NavIcon name="mail" class="h-4.5 w-4.5" />
                     </span>
                     <TextInput
@@ -71,7 +71,7 @@ const submit = () => {
                 <InputLabel for="password" value="كلمة المرور" />
 
                 <div class="relative mt-1.5">
-                    <span class="pointer-events-none absolute inset-y-0 start-3 flex items-center text-slate-400">
+                    <span class="pointer-events-none absolute inset-y-0 start-3 flex items-center text-slate-400 dark:text-slate-500">
                         <NavIcon name="lock" class="h-4.5 w-4.5" />
                     </span>
                     <TextInput
@@ -84,7 +84,7 @@ const submit = () => {
                     />
                     <button
                         type="button"
-                        class="absolute inset-y-0 end-3 flex items-center text-slate-400 hover:text-slate-600"
+                        class="absolute inset-y-0 end-3 flex items-center text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
                         @click="showPassword = !showPassword"
                     >
                         <NavIcon :name="showPassword ? 'eye-off' : 'eye'" class="h-4.5 w-4.5" />
@@ -97,13 +97,13 @@ const submit = () => {
             <div class="flex items-center justify-between">
                 <label class="flex items-center gap-2">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="text-sm text-slate-600">تذكرني</span>
+                    <span class="text-sm text-slate-600 dark:text-slate-400">تذكرني</span>
                 </label>
 
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="text-sm text-slate-500 underline underline-offset-2 hover:text-slate-800"
+                    class="text-sm text-slate-500 underline underline-offset-2 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
                 >
                     نسيت كلمة المرور؟
                 </Link>

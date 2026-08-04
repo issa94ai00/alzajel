@@ -45,6 +45,7 @@ class ShiftController extends Controller
         return Inertia::render('Shifts/Open', [
             'currencies' => $currencies,
             'currentShiftOpen' => (bool) $currentShift,
+            'previousBalances' => $this->shiftService->previousClosingBalances(),
         ]);
     }
 

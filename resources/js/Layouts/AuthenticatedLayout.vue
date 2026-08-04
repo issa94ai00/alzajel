@@ -5,7 +5,10 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavIcon from '@/Components/NavIcon.vue';
 import SidebarNavLink from '@/Components/SidebarNavLink.vue';
 import ShiftStatusBanner from '@/Components/ShiftStatusBanner.vue';
+import { useDarkMode } from '@/composables/useDarkMode';
 import { Link, usePage } from '@inertiajs/vue3';
+
+const { isDark, toggle: toggleDarkMode } = useDarkMode();
 
 const sidebarOpen = ref(false);
 const page = usePage();
@@ -36,7 +39,7 @@ const navLinks = computed(() => {
 </script>
 
 <template>
-    <div class="flex h-screen overflow-hidden bg-slate-50">
+    <div class="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
         <!-- Mobile backdrop -->
         <div
             v-show="sidebarOpen"
@@ -99,10 +102,10 @@ const navLinks = computed(() => {
 
         <!-- Main column -->
         <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-            <header class="flex h-16 shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
+            <header class="flex h-16 shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 sm:px-6 lg:px-8">
                 <button
                     type="button"
-                    class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+                    class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
                     @click="sidebarOpen = true"
                 >
                     <NavIcon name="menu" class="h-6 w-6" />
@@ -110,14 +113,22 @@ const navLinks = computed(() => {
                 <div v-if="$slots.header" class="min-w-0 flex-1">
                     <slot name="header" />
                 </div>
+                <button
+                    type="button"
+                    class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                    :title="isDark ? 'الوضع الفاتح' : 'الوضع الداكن'"
+                    @click="toggleDarkMode"
+                >
+                    <NavIcon :name="isDark ? 'sun' : 'moon'" class="h-5 w-5" />
+                </button>
             </header>
 
             <ShiftStatusBanner />
 
-            <div v-if="flashSuccess" class="mx-4 mt-4 rounded-lg bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-800 sm:mx-6 lg:mx-8">
+            <div v-if="flashSuccess" class="mx-4 mt-4 rounded-lg bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 sm:mx-6 lg:mx-8">
                 {{ flashSuccess }}
             </div>
-            <div v-if="flashError" class="mx-4 mt-4 rounded-lg bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-800 sm:mx-6 lg:mx-8">
+            <div v-if="flashError" class="mx-4 mt-4 rounded-lg bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-800 dark:bg-rose-900/30 dark:text-rose-300 sm:mx-6 lg:mx-8">
                 {{ flashError }}
             </div>
 

@@ -28,6 +28,7 @@ class TransactionsListScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'transactions-new-fab',
         onPressed: () => context.push('/transactions/new'),
         icon: const Icon(Icons.add_rounded),
         label: const Text('عملية جديدة'),

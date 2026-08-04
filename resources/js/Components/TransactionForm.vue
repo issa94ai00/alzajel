@@ -63,13 +63,13 @@ onMounted(() => {
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <form @submit.prevent="submit" class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div class="grid grid-cols-2 gap-2">
             <button
                 type="button"
                 @click="form.type = 'sell'"
                 class="rounded-md border px-4 py-3 text-center font-semibold transition"
-                :class="form.type === 'sell' ? 'border-rose-600 bg-rose-50 text-rose-700' : 'border-gray-200 text-gray-500'"
+                :class="form.type === 'sell' ? 'border-rose-600 bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' : 'border-gray-200 text-gray-500 dark:border-slate-600 dark:text-slate-400'"
             >
                 بيع (تسليم عملة للعميل)
             </button>
@@ -77,7 +77,7 @@ onMounted(() => {
                 type="button"
                 @click="form.type = 'buy'"
                 class="rounded-md border px-4 py-3 text-center font-semibold transition"
-                :class="form.type === 'buy' ? 'border-emerald-600 bg-emerald-50 text-emerald-700' : 'border-gray-200 text-gray-500'"
+                :class="form.type === 'buy' ? 'border-emerald-600 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'border-gray-200 text-gray-500 dark:border-slate-600 dark:text-slate-400'"
             >
                 شراء (استلام عملة من العميل)
             </button>
@@ -88,7 +88,7 @@ onMounted(() => {
             <select
                 id="currency_id"
                 v-model="form.currency_id"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
             >
                 <option v-for="c in currencies" :key="c.id" :value="c.id">{{ c.name }} ({{ c.code }})</option>
             </select>
@@ -124,9 +124,9 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="rounded-md bg-indigo-50 p-4 text-center">
-            <span class="text-sm text-gray-500">الإجمالي</span>
-            <div class="text-2xl font-bold text-indigo-700">{{ formatNumber(total) }}</div>
+        <div class="rounded-md bg-indigo-50 p-4 text-center dark:bg-indigo-900/30">
+            <span class="text-sm text-gray-500 dark:text-slate-400">الإجمالي</span>
+            <div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{{ formatNumber(total) }}</div>
         </div>
 
         <button

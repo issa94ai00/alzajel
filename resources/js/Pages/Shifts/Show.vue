@@ -30,9 +30,9 @@ function formatNumber(value) {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-white">
                     وردية {{ shift.business_date }}
-                    <span :class="shift.status === 'open' ? 'text-emerald-700' : 'text-gray-500'" class="text-sm font-semibold">
+                    <span :class="shift.status === 'open' ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-500 dark:text-slate-400'" class="text-sm font-semibold">
                         ({{ shift.status === 'open' ? 'مفتوحة' : 'مغلقة' }})
                     </span>
                 </h2>
@@ -48,19 +48,19 @@ function formatNumber(value) {
 
         <div class="py-8">
             <div class="mx-auto max-w-5xl space-y-6 sm:px-6 lg:px-8">
-                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                    <div class="border-b border-gray-200 px-4 py-3">
-                        <h3 class="font-semibold text-gray-800">الأرصدة</h3>
+                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                    <div class="border-b border-gray-200 px-4 py-3 dark:border-slate-700">
+                        <h3 class="font-semibold text-gray-800 dark:text-white">الأرصدة</h3>
                     </div>
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50 text-gray-500">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-slate-700">
+                        <thead class="bg-gray-50 text-gray-500 dark:bg-slate-900/60 dark:text-slate-400">
                             <tr>
                                 <th class="px-4 py-2 text-start">العملة</th>
                                 <th class="px-4 py-2 text-start">الرصيد الافتتاحي</th>
                                 <th class="px-4 py-2 text-start">الرصيد الحالي</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700 dark:text-slate-200">
                             <tr v-for="b in balances" :key="b.currency.id">
                                 <td class="px-4 py-2">{{ b.currency.name }} ({{ b.currency.code }})</td>
                                 <td class="px-4 py-2">{{ formatNumber(b.opening_balance) }}</td>
@@ -70,35 +70,35 @@ function formatNumber(value) {
                     </table>
                 </div>
 
-                <div v-if="isAdmin" class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                    <div class="border-b border-gray-200 px-4 py-3">
-                        <h3 class="font-semibold text-gray-800">الأرباح والخسائر</h3>
+                <div v-if="isAdmin" class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                    <div class="border-b border-gray-200 px-4 py-3 dark:border-slate-700">
+                        <h3 class="font-semibold text-gray-800 dark:text-white">الأرباح والخسائر</h3>
                     </div>
                     <div class="px-4 py-3">
                         <p class="text-lg">
                             صافي الربح:
-                            <span class="font-bold" :class="Number(profitLoss.total_profit) >= 0 ? 'text-emerald-700' : 'text-rose-700'">
+                            <span class="font-bold" :class="Number(profitLoss.total_profit) >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'">
                                 {{ formatNumber(profitLoss.total_profit) }}
                             </span>
-                            <span class="text-sm text-gray-500">({{ profitLoss.transaction_count }} عملية)</span>
+                            <span class="text-sm text-gray-500 dark:text-slate-400">({{ profitLoss.transaction_count }} عملية)</span>
                         </p>
                     </div>
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50 text-gray-500">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-slate-700">
+                        <thead class="bg-gray-50 text-gray-500 dark:bg-slate-900/60 dark:text-slate-400">
                             <tr>
                                 <th class="px-4 py-2 text-start">العملة</th>
                                 <th class="px-4 py-2 text-start">عدد العمليات</th>
                                 <th class="px-4 py-2 text-start">الربح</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700 dark:text-slate-200">
                             <tr v-if="profitLoss.by_currency.length === 0">
-                                <td colspan="3" class="px-4 py-6 text-center text-gray-400">لا توجد عمليات بعد.</td>
+                                <td colspan="3" class="px-4 py-6 text-center text-gray-400 dark:text-slate-500">لا توجد عمليات بعد.</td>
                             </tr>
                             <tr v-for="row in profitLoss.by_currency" :key="row.currency.id">
                                 <td class="px-4 py-2">{{ row.currency.name }} ({{ row.currency.code }})</td>
                                 <td class="px-4 py-2">{{ row.transaction_count }}</td>
-                                <td class="px-4 py-2 font-semibold" :class="Number(row.profit) >= 0 ? 'text-emerald-700' : 'text-rose-700'">
+                                <td class="px-4 py-2 font-semibold" :class="Number(row.profit) >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'">
                                     {{ formatNumber(row.profit) }}
                                 </td>
                             </tr>

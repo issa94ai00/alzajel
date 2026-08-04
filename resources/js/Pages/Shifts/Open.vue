@@ -9,10 +9,13 @@ import { Head, useForm } from '@inertiajs/vue3';
 const props = defineProps({
     currencies: { type: Array, required: true },
     currentShiftOpen: { type: Boolean, default: false },
+    previousBalances: { type: Object, default: () => ({}) },
 });
 
 const form = useForm({
-    opening_balances: Object.fromEntries(props.currencies.map((c) => [c.id, '0'])),
+    opening_balances: Object.fromEntries(
+        props.currencies.map((c) => [c.id, props.previousBalances[c.id] ?? '0']),
+    ),
 });
 
 function submit() {
@@ -29,19 +32,19 @@ function submit() {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
+            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-white">
                 {{ currentShiftOpen ? 'إغلاق الوردية الحالية وفتح وردية جديدة' : 'فتح وردية جديدة' }}
             </h2>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-xl sm:px-6 lg:px-8">
-                <div v-if="currentShiftOpen" class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                <div v-if="currentShiftOpen" class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-300">
                     توجد وردية مفتوحة حالياً. عند المتابعة سيتم إغلاقها تلقائياً بأرصدتها الحالية، ثم فتح وردية جديدة بالأرصدة أدناه.
                 </div>
 
-                <form @submit.prevent="submit" class="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                    <p class="text-sm text-gray-500">أدخل الرصيد الافتتاحي لكل عملة (القيمة الافتراضية 0، ويمكن تعديلها).</p>
+                <form @submit.prevent="submit" class="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                    <p class="text-sm text-gray-500 dark:text-slate-400">أدخل الرصيد الافتتاحي لكل عملة (القيمة الافتراضية هي رصيد إغلاق الوردية السابقة، ويمكن تعديلها).</p>
 
                     <div v-for="currency in currencies" :key="currency.id">
                         <InputLabel :for="`balance-${currency.id}`" :value="`${currency.name} (${currency.code})`" />

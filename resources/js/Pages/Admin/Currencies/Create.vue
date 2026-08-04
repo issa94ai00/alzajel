@@ -23,12 +23,12 @@ function submit() {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">عملة جديدة</h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-white">عملة جديدة</h2>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-lg sm:px-6 lg:px-8">
-                <form @submit.prevent="submit" class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                <form @submit.prevent="submit" class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                     <div>
                         <InputLabel for="code" value="رمز العملة (مثال: USD)" />
                         <TextInput
@@ -55,7 +55,7 @@ function submit() {
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <input id="is_active" v-model="form.is_active" type="checkbox" class="rounded border-gray-300" />
+                        <input id="is_active" v-model="form.is_active" type="checkbox" class="rounded border-gray-300 dark:border-slate-600 dark:bg-slate-800" />
                         <InputLabel for="is_active" value="مفعّلة" />
                     </div>
 

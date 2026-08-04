@@ -45,7 +45,7 @@ class Currency {
       id: json['id'] as int,
       code: json['code'] as String,
       name: json['name'] as String,
-      symbol: json['symbol'] as String,
+      symbol: json['symbol'] as String? ?? '',
       isBase: json['is_base'] as bool? ?? false,
       isActive: json['is_active'] as bool? ?? true,
       exchangeRate: (rate is Map<String, dynamic>)

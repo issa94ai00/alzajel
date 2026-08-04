@@ -8,12 +8,12 @@ defineProps({
 <template>
     <div class="flex items-center gap-3 text-sm">
         <span class="flex items-center gap-1">
-            <span class="text-gray-500">شراء</span>
-            <span class="font-semibold text-emerald-700">{{ buyRate ?? '—' }}</span>
+            <span class="text-gray-500 dark:text-slate-400">شراء</span>
+            <span class="font-semibold text-emerald-700 dark:text-emerald-400">{{ buyRate ?? '—' }}</span>
         </span>
         <span class="flex items-center gap-1">
-            <span class="text-gray-500">بيع</span>
-            <span class="font-semibold text-rose-700">{{ sellRate ?? '—' }}</span>
+            <span class="text-gray-500 dark:text-slate-400">بيع</span>
+            <span class="font-semibold text-rose-700 dark:text-rose-400">{{ sellRate ?? '—' }}</span>
         </span>
     </div>
 </template>

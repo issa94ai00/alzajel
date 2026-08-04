@@ -24,12 +24,12 @@ function submit() {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">مستخدم جديد</h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-white">مستخدم جديد</h2>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-lg sm:px-6 lg:px-8">
-                <form @submit.prevent="submit" class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                <form @submit.prevent="submit" class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                     <div>
                         <InputLabel for="name" value="الاسم" />
                         <TextInput id="name" v-model="form.name" class="mt-1 block w-full" required autofocus />
@@ -44,7 +44,7 @@ function submit() {
 
                     <div>
                         <InputLabel for="role" value="الدور" />
-                        <select id="role" v-model="form.role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <select id="role" v-model="form.role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white">
                             <option value="cashier">صراف</option>
                             <option value="admin">مدير</option>
                         </select>

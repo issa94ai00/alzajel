@@ -10,7 +10,7 @@ const shift = computed(() => page.props.currentShift);
     <div class="mx-4 mt-4 sm:mx-6 lg:mx-8">
         <div
             class="flex items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-sm font-medium"
-            :class="shift ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'"
+            :class="shift ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'"
         >
             <span v-if="shift" class="flex items-center gap-2">
                 <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-500"></span>

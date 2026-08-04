@@ -31,32 +31,32 @@ function formatNumber(value) {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">سجل العمليات</h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-white">سجل العمليات</h2>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-6xl space-y-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-2 gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:grid-cols-5">
-                    <select v-model="form.currency_id" class="rounded-md border-gray-300 text-sm">
+                <div class="grid grid-cols-2 gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:grid-cols-5">
+                    <select v-model="form.currency_id" class="rounded-md border-gray-300 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-white">
                         <option value="">كل العملات</option>
                         <option v-for="c in currencies" :key="c.id" :value="c.id">{{ c.code }}</option>
                     </select>
-                    <select v-model="form.type" class="rounded-md border-gray-300 text-sm">
+                    <select v-model="form.type" class="rounded-md border-gray-300 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-white">
                         <option value="">كل الأنواع</option>
                         <option value="buy">شراء</option>
                         <option value="sell">بيع</option>
                     </select>
-                    <input v-model="form.date_from" type="date" class="rounded-md border-gray-300 text-sm" />
-                    <input v-model="form.date_to" type="date" class="rounded-md border-gray-300 text-sm" />
-                    <input v-model="form.search" type="text" placeholder="بحث بالاسم أو الهاتف" class="rounded-md border-gray-300 text-sm" />
+                    <input v-model="form.date_from" type="date" class="rounded-md border-gray-300 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-white" />
+                    <input v-model="form.date_to" type="date" class="rounded-md border-gray-300 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-white" />
+                    <input v-model="form.search" type="text" placeholder="بحث بالاسم أو الهاتف" class="rounded-md border-gray-300 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500" />
                     <button @click="applyFilters" class="col-span-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 sm:col-span-5">
                         تطبيق الفلاتر
                     </button>
                 </div>
 
-                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50 text-gray-500">
+                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-slate-700">
+                        <thead class="bg-gray-50 text-gray-500 dark:bg-slate-900/60 dark:text-slate-400">
                             <tr>
                                 <th class="px-4 py-2 text-start">التاريخ</th>
                                 <th class="px-4 py-2 text-start">النوع</th>
@@ -68,14 +68,14 @@ function formatNumber(value) {
                                 <th class="px-4 py-2 text-start">الموظف</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700 dark:text-slate-200">
                             <tr v-if="transactions.data.length === 0">
-                                <td colspan="8" class="px-4 py-6 text-center text-gray-400">لا توجد عمليات مطابقة.</td>
+                                <td colspan="8" class="px-4 py-6 text-center text-gray-400 dark:text-slate-500">لا توجد عمليات مطابقة.</td>
                             </tr>
                             <tr v-for="t in transactions.data" :key="t.id">
                                 <td class="px-4 py-2">{{ new Date(t.created_at).toLocaleString('ar-SY') }}</td>
                                 <td class="px-4 py-2">
-                                    <span :class="t.type === 'buy' ? 'text-emerald-700' : 'text-rose-700'" class="font-semibold">
+                                    <span :class="t.type === 'buy' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'" class="font-semibold">
                                         {{ t.type === 'buy' ? 'شراء' : 'بيع' }}
                                     </span>
                                 </td>
@@ -97,7 +97,7 @@ function formatNumber(value) {
                         :href="link.url ?? ''"
                         v-html="link.label"
                         class="rounded-md px-3 py-1 text-sm"
-                        :class="link.active ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+                        :class="link.active ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'"
                         :as="link.url ? 'a' : 'span'"
                     />
                 </div>

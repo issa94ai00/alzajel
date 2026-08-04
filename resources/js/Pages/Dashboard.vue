@@ -20,16 +20,16 @@ function formatNumber(value) {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-lg font-bold leading-tight text-slate-800">الرئيسية</h2>
+            <h2 class="text-lg font-bold leading-tight text-slate-800 dark:text-white">الرئيسية</h2>
         </template>
 
         <div class="p-4 sm:p-6 lg:p-8">
             <div class="mx-auto max-w-7xl space-y-6">
-                <div v-if="!shift" class="rounded-xl border border-amber-200 bg-amber-50 p-8 text-center">
-                    <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
-                        <NavIcon name="clock" class="h-6 w-6 text-amber-600" />
+                <div v-if="!shift" class="rounded-xl border border-amber-200 bg-amber-50 p-8 text-center dark:border-amber-800/50 dark:bg-amber-900/20">
+                    <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+                        <NavIcon name="clock" class="h-6 w-6 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <p class="text-amber-800">لا توجد وردية مفتوحة حالياً. يجب فتح وردية جديدة لبدء تسجيل العمليات.</p>
+                    <p class="text-amber-800 dark:text-amber-300">لا توجد وردية مفتوحة حالياً. يجب فتح وردية جديدة لبدء تسجيل العمليات.</p>
                     <Link
                         :href="route('shifts.create')"
                         class="mt-4 inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700"
@@ -61,28 +61,28 @@ function formatNumber(value) {
                         </Link>
                         <Link
                             :href="route('shifts.show', shift.id)"
-                            class="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                            class="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                         >
                             <NavIcon name="clock" class="h-4 w-4" />
                             تفاصيل الوردية
                         </Link>
                     </div>
 
-                    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                            <h3 class="font-bold text-slate-800">آخر العمليات</h3>
-                            <Link :href="route('transactions.index')" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">
+                    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-700">
+                            <h3 class="font-bold text-slate-800 dark:text-white">آخر العمليات</h3>
+                            <Link :href="route('transactions.index')" class="text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
                                 عرض الكل
                             </Link>
                         </div>
 
-                        <div v-if="recentTransactions.length === 0" class="px-5 py-10 text-center text-slate-400">
+                        <div v-if="recentTransactions.length === 0" class="px-5 py-10 text-center text-slate-400 dark:text-slate-500">
                             لا توجد عمليات بعد في هذه الوردية.
                         </div>
 
                         <div v-else class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-slate-100 text-sm">
-                                <thead class="bg-slate-50 text-slate-500">
+                            <table class="min-w-full divide-y divide-slate-100 text-sm dark:divide-slate-700">
+                                <thead class="bg-slate-50 text-slate-500 dark:bg-slate-900/60 dark:text-slate-400">
                                     <tr>
                                         <th class="px-5 py-3 text-start font-semibold">الوقت</th>
                                         <th class="px-5 py-3 text-start font-semibold">النوع</th>
@@ -93,22 +93,22 @@ function formatNumber(value) {
                                         <th class="px-5 py-3 text-start font-semibold">الموظف</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    <tr v-for="t in recentTransactions" :key="t.id" class="transition hover:bg-slate-50">
-                                        <td class="px-5 py-3 text-slate-500">{{ new Date(t.created_at).toLocaleTimeString('ar-SY') }}</td>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                    <tr v-for="t in recentTransactions" :key="t.id" class="transition hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                        <td class="px-5 py-3 text-slate-500 dark:text-slate-400">{{ new Date(t.created_at).toLocaleTimeString('ar-SY') }}</td>
                                         <td class="px-5 py-3">
                                             <span
                                                 class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold"
-                                                :class="t.type === 'buy' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'"
+                                                :class="t.type === 'buy' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'"
                                             >
                                                 {{ t.type === 'buy' ? 'شراء' : 'بيع' }}
                                             </span>
                                         </td>
-                                        <td class="px-5 py-3 font-medium text-slate-700">{{ t.currency.code }}</td>
-                                        <td class="px-5 py-3 text-slate-700">{{ formatNumber(t.amount) }}</td>
-                                        <td class="px-5 py-3 text-slate-500">{{ formatNumber(t.rate) }}</td>
-                                        <td class="px-5 py-3 font-semibold text-slate-800">{{ formatNumber(t.total) }}</td>
-                                        <td class="px-5 py-3 text-slate-500">{{ t.user.name }}</td>
+                                        <td class="px-5 py-3 font-medium text-slate-700 dark:text-slate-300">{{ t.currency.code }}</td>
+                                        <td class="px-5 py-3 text-slate-700 dark:text-slate-300">{{ formatNumber(t.amount) }}</td>
+                                        <td class="px-5 py-3 text-slate-500 dark:text-slate-400">{{ formatNumber(t.rate) }}</td>
+                                        <td class="px-5 py-3 font-semibold text-slate-800 dark:text-white">{{ formatNumber(t.total) }}</td>
+                                        <td class="px-5 py-3 text-slate-500 dark:text-slate-400">{{ t.user.name }}</td>
                                     </tr>
                                 </tbody>
                             </table>

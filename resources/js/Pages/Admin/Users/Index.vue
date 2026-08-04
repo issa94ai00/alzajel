@@ -25,7 +25,7 @@ function destroy(user) {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">المستخدمون</h2>
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-white">المستخدمون</h2>
                 <Link :href="route('users.create')" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
                     + مستخدم جديد
                 </Link>
@@ -34,9 +34,9 @@ function destroy(user) {
 
         <div class="py-8">
             <div class="mx-auto max-w-4xl sm:px-6 lg:px-8">
-                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50 text-gray-500">
+                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-slate-700">
+                        <thead class="bg-gray-50 text-gray-500 dark:bg-slate-900/60 dark:text-slate-400">
                             <tr>
                                 <th class="px-4 py-2 text-start">الاسم</th>
                                 <th class="px-4 py-2 text-start">البريد الإلكتروني</th>
@@ -44,17 +44,17 @@ function destroy(user) {
                                 <th class="px-4 py-2 text-start"></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700 dark:text-slate-200">
                             <tr v-for="user in users" :key="user.id">
                                 <td class="px-4 py-2">{{ user.name }}</td>
                                 <td class="px-4 py-2">{{ user.email }}</td>
                                 <td class="px-4 py-2">{{ roleLabels[user.roles[0]?.name] ?? '—' }}</td>
                                 <td class="px-4 py-2 space-x-2 space-x-reverse">
-                                    <Link :href="route('users.edit', user.id)" class="text-indigo-600 hover:underline">تعديل</Link>
+                                    <Link :href="route('users.edit', user.id)" class="text-indigo-600 hover:underline dark:text-indigo-400">تعديل</Link>
                                     <button
                                         v-if="user.id !== currentUserId"
                                         @click="destroy(user)"
-                                        class="text-rose-600 hover:underline"
+                                        class="text-rose-600 hover:underline dark:text-rose-400"
                                     >
                                         حذف
                                     </button>

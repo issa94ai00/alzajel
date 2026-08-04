@@ -35,6 +35,13 @@ defineProps({
             <path d="M9 9.5c0-1 1-1.5 2.2-1.5 1.4 0 2.3.7 2.3 1.7 0 2.3-4.5 1.6-4.5 4 0 1.1 1 1.8 2.3 1.8 1.2 0 2.2-.6 2.2-1.6" />
             <line x1="12" y1="6" x2="12" y2="18" />
         </template>
+        <template v-else-if="name === 'sun'">
+            <circle cx="12" cy="12" r="4.2" />
+            <path d="M12 3v2.2M12 18.8V21M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M3 12h2.2M18.8 12H21M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6" />
+        </template>
+        <template v-else-if="name === 'moon'">
+            <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z" />
+        </template>
         <template v-else-if="name === 'coins'">
             <ellipse cx="9" cy="8" rx="6" ry="3.2" />
             <path d="M3 8v8c0 1.8 2.7 3.2 6 3.2s6-1.4 6-3.2V8" />

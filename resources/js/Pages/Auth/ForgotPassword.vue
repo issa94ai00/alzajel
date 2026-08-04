@@ -25,14 +25,14 @@ const submit = () => {
     <GuestLayout>
         <Head title="نسيت كلمة المرور" />
 
-        <div class="mb-4 text-sm text-gray-600">
+        <div class="mb-4 text-sm text-gray-600 dark:text-slate-400">
             نسيت كلمة المرور؟ لا مشكلة. أدخل بريدك الإلكتروني وسنرسل لك رابطاً
             لإعادة تعيين كلمة المرور.
         </div>
 
         <div
             v-if="status"
-            class="mb-4 text-sm font-medium text-green-600"
+            class="mb-4 text-sm font-medium text-green-600 dark:text-emerald-400"
         >
             {{ status }}
         </div>

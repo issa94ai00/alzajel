@@ -27,13 +27,13 @@ function submit() {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">تعديل عملة</h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-white">تعديل عملة</h2>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-lg sm:px-6 lg:px-8">
-                <form @submit.prevent="submit" class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                    <div v-if="currency.is_base" class="rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-800">
+                <form @submit.prevent="submit" class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                    <div v-if="currency.is_base" class="rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-800 dark:border-indigo-800/50 dark:bg-indigo-900/20 dark:text-indigo-300">
                         هذه هي العملة الأساسية للنظام، ولا يمكن تعطيلها.
                     </div>
 
@@ -67,7 +67,7 @@ function submit() {
                             id="is_active"
                             v-model="form.is_active"
                             type="checkbox"
-                            class="rounded border-gray-300"
+                            class="rounded border-gray-300 dark:border-slate-600 dark:bg-slate-800"
                             :disabled="currency.is_base"
                         />
                         <InputLabel for="is_active" value="مفعّلة" />
