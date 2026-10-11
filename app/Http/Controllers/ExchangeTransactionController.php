@@ -132,11 +132,32 @@ class ExchangeTransactionController extends Controller
             ->get()
             ->mapWithKeys(fn ($account) => [$account->currency_id => (string) $account->current_balance]);
 
+        // آخر عمليات الوردية بجانب النموذج: يرى الصرّاف ما سجّله للتو فلا
+        // يكرّر عملية سهواً، ويطبع إيصالها دون مغادرة الصفحة.
+        $recentTransactions = $shift->exchangeTransactions()
+            ->with('currency')
+            ->latest('id')
+            ->limit(6)
+            ->get()
+            ->map(fn (ExchangeTransaction $transaction) => [
+                'id' => $transaction->id,
+                'created_at' => $transaction->created_at?->toIso8601String(),
+                'type' => $transaction->type,
+                'currency' => $transaction->currency?->only(['id', 'code']),
+                'currency_tag' => $transaction->currency_tag,
+                'amount' => (string) $transaction->amount,
+                'rate' => (string) $transaction->rate,
+                'total' => (string) $transaction->total,
+                'customer_name' => $transaction->customer_name,
+            ]);
+
         return Inertia::render('Transactions/Create', [
             'shift' => $shift,
             'currencies' => $currencies,
             'baseCurrency' => $baseCurrency?->only(['id', 'code', 'name', 'symbol', 'tag']),
             'balances' => $balances,
+            'recentTransactions' => $recentTransactions,
+            'transactionsCount' => $shift->exchangeTransactions()->count(),
         ]);
     }
 

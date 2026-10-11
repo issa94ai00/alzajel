@@ -2,10 +2,10 @@
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import NewLiraNotice from '@/Components/NewLiraNotice.vue';
 import CurrencyPicker from '@/Components/CurrencyPicker.vue';
 import OldLiraHint from '@/Components/OldLiraHint.vue';
+import TransactionSummary from '@/Components/TransactionSummary.vue';
 import { useFormat } from '@/composables/useFormat';
 import { useForm } from '@inertiajs/vue3';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
@@ -18,7 +18,10 @@ const props = defineProps({
     balances: { type: Object, default: () => ({}) },
 });
 
-const { number, rate } = useFormat();
+// الصفحة الأم تعرض الملخص في عمود جانبي على الشاشات الكبيرة.
+const emit = defineEmits(['update:summary']);
+
+const { rate } = useFormat();
 
 const showCustomerFields = ref(false);
 const amountInput = ref(null);
@@ -115,59 +118,143 @@ const insufficient = computed(
     () => fundingSide.value.required > 0 && fundingSide.value.required > fundingSide.value.available,
 );
 
-const remaining = computed(() => fundingSide.value.available - fundingSide.value.required);
+/* -------------------------------- الملخص -------------------------------- */
 
-const canSubmit = computed(
-    () => !form.processing && !insufficient.value && Number(form.amount) > 0 && Number(form.rate) > 0,
+const summary = computed(() => ({
+    type: form.type,
+    currencyCode: selectedCurrency.value?.code ?? '',
+    baseCode: baseCode.value,
+    amount: Number(form.amount) || 0,
+    rate: Number(form.rate) || 0,
+    total: total.value,
+    officialRate: officialRate.value,
+    rateOverridden: rateOverridden.value,
+    funding: fundingSide.value,
+    insufficient: insufficient.value,
+}));
+
+watch(summary, (value) => emit('update:summary', value), { immediate: true });
+
+/* -------------------------------- الإرسال -------------------------------- */
+
+/**
+ * زر معطّل بلا سبب ظاهر يترك الصرّاف يخمّن؛ نقول له ما الناقص تحديداً.
+ */
+const blocker = computed(() => {
+    if (!selectedCurrency.value) return 'اختر العملة أولاً.';
+    if (!(Number(form.amount) > 0)) return 'أدخل المبلغ للمتابعة.';
+    if (!(Number(form.rate) > 0)) return 'أدخل سعر الصرف للمتابعة.';
+    if (insufficient.value) return 'الرصيد غير كافٍ لإتمام هذه العملية.';
+
+    return null;
+});
+
+const canSubmit = computed(() => !form.processing && blocker.value === null);
+
+const isDirty = computed(
+    () => form.amount !== '' || form.customer_name !== '' || form.customer_phone !== '' || form.notes !== '',
 );
 
+function focusAmount() {
+    nextTick(() => amountInput.value?.focus());
+}
+
+/** يمسح ما يخصّ هذه العملية ويُبقي الاتجاه والعملة للعملية التالية. */
+function clearEntry() {
+    form.reset('amount', 'customer_name', 'customer_phone', 'notes');
+    form.clearErrors();
+    form.currency_tag = selectedCurrency.value?.tag ?? '';
+    suggestRate();
+    focusAmount();
+}
+
 function submit() {
+    if (!canSubmit.value) return;
+
     form.post(route('transactions.store'), {
-        onSuccess: () => {
-            form.currency_tag = selectedCurrency.value?.tag ?? '';
-            nextTick(() => amountInput.value?.focus());
-        },
+        // الصرّاف يسجّل عمليات متتالية بالاتجاه والعملة نفسيهما غالباً، فنُبقي
+        // النموذج حيّاً ونمسح ما يخصّ العملية المنتهية فقط.
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: clearEntry,
     });
 }
 
 onMounted(() => {
     suggestRate();
-    amountInput.value?.focus();
+    focusAmount();
 });
 </script>
 
 <template>
-    <form
-        @submit.prevent="submit"
-        class="space-y-5 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800"
-    >
+    <form @submit.prevent="submit" class="space-y-4">
         <NewLiraNotice compact :currencies="currencies" dismiss-key="transaction-form" />
 
-        <!-- اتجاه العملية: الفرق بين البيع والشراء هو أكثر ما يُخطئ فيه، لذا يبقى أول قرار وأوضحه. -->
-        <div class="grid grid-cols-2 gap-2">
-            <button
-                type="button"
-                :aria-pressed="isSell"
-                @click="form.type = 'sell'"
-                class="rounded-md border px-4 py-3 text-center transition"
-                :class="isSell ? 'border-rose-600 bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' : 'border-gray-200 text-gray-500 hover:border-gray-300 dark:border-slate-600 dark:text-slate-400'"
-            >
-                <span class="block font-semibold">بيع</span>
-                <span class="block text-xs opacity-80">تُسلّم العملة للعميل</span>
-            </button>
-            <button
-                type="button"
-                :aria-pressed="!isSell"
-                @click="form.type = 'buy'"
-                class="rounded-md border px-4 py-3 text-center transition"
-                :class="!isSell ? 'border-emerald-600 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'border-gray-200 text-gray-500 hover:border-gray-300 dark:border-slate-600 dark:text-slate-400'"
-            >
-                <span class="block font-semibold">شراء</span>
-                <span class="block text-xs opacity-80">تستلم العملة من العميل</span>
-            </button>
-        </div>
+        <!-- ١. اتجاه العملية: الفرق بين البيع والشراء هو أكثر ما يُخطئ فيه، لذا يبقى أول قرار وأوضحه. -->
+        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div class="mb-3 flex items-center gap-2">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">1</span>
+                <h3 class="text-sm font-semibold text-gray-800 dark:text-white">اتجاه العملية</h3>
+            </div>
 
-        <div>
+            <div class="grid grid-cols-2 gap-3" role="radiogroup" aria-label="اتجاه العملية">
+                <button
+                    type="button"
+                    role="radio"
+                    :aria-checked="isSell"
+                    @click="form.type = 'sell'"
+                    class="flex items-center gap-3 rounded-lg border-2 px-4 py-3 text-start transition focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800"
+                    :class="isSell
+                        ? 'border-rose-600 bg-rose-50 text-rose-800 dark:bg-rose-900/30 dark:text-rose-200'
+                        : 'border-gray-200 text-gray-500 hover:border-rose-300 hover:bg-rose-50/40 dark:border-slate-600 dark:text-slate-400 dark:hover:border-rose-500/60'"
+                >
+                    <span
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                        :class="isSell ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-400 dark:bg-slate-700 dark:text-slate-500'"
+                    >
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0l-6 6m6-6l6 6" />
+                        </svg>
+                    </span>
+                    <span class="min-w-0">
+                        <span class="block text-base font-bold">بيع</span>
+                        <span class="block truncate text-xs opacity-80">تُسلّم العملة للعميل</span>
+                    </span>
+                </button>
+                <button
+                    type="button"
+                    role="radio"
+                    :aria-checked="!isSell"
+                    @click="form.type = 'buy'"
+                    class="flex items-center gap-3 rounded-lg border-2 px-4 py-3 text-start transition focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800"
+                    :class="!isSell
+                        ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200'
+                        : 'border-gray-200 text-gray-500 hover:border-emerald-300 hover:bg-emerald-50/40 dark:border-slate-600 dark:text-slate-400 dark:hover:border-emerald-500/60'"
+                >
+                    <span
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                        :class="!isSell ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-400 dark:bg-slate-700 dark:text-slate-500'"
+                    >
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l6-6m-6 6l-6-6" />
+                        </svg>
+                    </span>
+                    <span class="min-w-0">
+                        <span class="block text-base font-bold">شراء</span>
+                        <span class="block truncate text-xs opacity-80">تستلم العملة من العميل</span>
+                    </span>
+                </button>
+            </div>
+            <InputError :message="form.errors.type" class="mt-2" />
+        </section>
+
+        <!-- ٢. العملة وفئتها -->
+        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div class="mb-3 flex items-center gap-2">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">2</span>
+                <h3 class="text-sm font-semibold text-gray-800 dark:text-white">العملة</h3>
+            </div>
+
             <CurrencyPicker
                 v-model="form.currency_id"
                 :currencies="currencies"
@@ -175,154 +262,200 @@ onMounted(() => {
                 :type="form.type"
             />
             <InputError :message="form.errors.currency_id" class="mt-1" />
-        </div>
 
-        <!-- فئة الورقة النقدية: تُملأ تلقائياً من العملة المختارة، ويعدّلها
-             الصرّاف إن سلّم فئة أخرى، وتُطبع على الإيصال كما أُدخلت. -->
-        <div>
-            <InputLabel for="currency_tag">
-                الفئة
-                <span class="font-normal text-gray-400">(اختياري)</span>
-            </InputLabel>
-            <TextInput
-                id="currency_tag"
-                v-model="form.currency_tag"
-                class="mt-1 block w-full"
-                maxlength="50"
-                :placeholder="selectedCurrency?.tag || 'مثال: USD-100'"
-            />
-            <InputError :message="form.errors.currency_tag" class="mt-1" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <InputLabel for="amount">
-                    المبلغ
-                    <span v-if="selectedCurrency" class="font-normal text-gray-400">({{ selectedCurrency.code }})</span>
+            <!-- فئة الورقة النقدية: تُملأ تلقائياً من العملة المختارة، ويعدّلها
+                 الصرّاف إن سلّم فئة أخرى، وتُطبع على الإيصال كما أُدخلت. -->
+            <div class="mt-4 sm:w-1/2">
+                <InputLabel for="currency_tag">
+                    الفئة
+                    <span class="font-normal text-gray-400">(اختياري)</span>
                 </InputLabel>
                 <TextInput
-                    id="amount"
-                    ref="amountInput"
-                    v-model="form.amount"
-                    type="number"
-                    inputmode="decimal"
-                    step="0.01"
-                    min="0.01"
-                    class="mt-1 block w-full text-lg"
-                    autofocus
+                    id="currency_tag"
+                    v-model="form.currency_tag"
+                    class="mt-1 block w-full"
+                    maxlength="50"
+                    :placeholder="selectedCurrency?.tag || 'مثال: USD-100'"
                 />
-                <OldLiraHint
-                    :amount="form.amount"
-                    :currency="selectedCurrency"
-                    @correct="(value) => (form.amount = String(value))"
-                />
-                <InputError :message="form.errors.amount" class="mt-1" />
+                <InputError :message="form.errors.currency_tag" class="mt-1" />
             </div>
-            <div>
-                <InputLabel for="rate">
-                    السعر
-                    <span v-if="selectedCurrency && baseCode" class="font-normal text-gray-400">
-                        ({{ baseCode }} لكل 1 {{ selectedCurrency.code }})
-                    </span>
-                </InputLabel>
-                <TextInput
-                    id="rate"
-                    v-model="form.rate"
-                    type="number"
-                    inputmode="decimal"
-                    step="any"
-                    min="0.0000000001"
-                    class="mt-1 block w-full text-lg"
-                />
-                <!-- تعديل السعر يدوياً مسموح، لكنه يغيّر الربح — فليكن ظاهراً لا صامتاً. -->
-                <p v-if="rateOverridden" class="mt-1 flex flex-wrap items-center gap-1 text-xs text-amber-700 dark:text-amber-400">
-                    <span>سعر مُعدَّل — الرسمي {{ rate(officialRate) }}</span>
-                    <button type="button" class="font-semibold underline hover:no-underline" @click="suggestRate">
-                        استعادة
-                    </button>
-                </p>
-                <p v-else-if="officialRate !== null" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    السعر الرسمي {{ isSell ? 'للبيع' : 'للشراء' }}
-                </p>
-                <p v-else class="mt-1 text-xs text-amber-700 dark:text-amber-400">
-                    لا يوجد سعر صرف مسجّل لهذه العملة — أدخل السعر يدوياً.
-                </p>
-                <InputError :message="form.errors.rate" class="mt-1" />
-            </div>
-        </div>
+        </section>
 
-        <!-- الإجمالي بالعملة الأساس، وباتجاه صريح: أيدفع الصرّاف أم يستلم؟ -->
-        <div
-            class="rounded-md p-4 text-center"
-            :class="insufficient ? 'bg-rose-50 dark:bg-rose-900/25' : 'bg-indigo-50 dark:bg-indigo-900/30'"
-        >
-            <span class="text-sm text-gray-500 dark:text-slate-400">
-                {{ isSell ? 'المستلم من العميل' : 'المدفوع للعميل' }}
-            </span>
-            <div
-                class="text-2xl font-bold"
-                :class="insufficient ? 'text-rose-700 dark:text-rose-300' : 'text-indigo-700 dark:text-indigo-300'"
+        <!-- ٣. المبلغ والسعر -->
+        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div class="mb-3 flex items-center gap-2">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">3</span>
+                <h3 class="text-sm font-semibold text-gray-800 dark:text-white">المبلغ والسعر</h3>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <InputLabel for="amount" value="المبلغ" />
+                    <div class="relative mt-1">
+                        <TextInput
+                            id="amount"
+                            ref="amountInput"
+                            v-model="form.amount"
+                            type="number"
+                            inputmode="decimal"
+                            step="0.01"
+                            min="0.01"
+                            placeholder="0.00"
+                            class="block w-full pe-16 text-xl font-semibold tabular-nums"
+                            :error="Boolean(form.errors.amount)"
+                            autofocus
+                        />
+                        <span
+                            v-if="selectedCurrency"
+                            class="pointer-events-none absolute inset-y-0 end-3 flex items-center text-sm font-bold text-gray-400 dark:text-slate-500"
+                        >
+                            {{ selectedCurrency.code }}
+                        </span>
+                    </div>
+                    <OldLiraHint
+                        :amount="form.amount"
+                        :currency="selectedCurrency"
+                        @correct="(value) => (form.amount = String(value))"
+                    />
+                    <InputError :message="form.errors.amount" class="mt-1" />
+                </div>
+
+                <div>
+                    <InputLabel for="rate">
+                        السعر
+                        <span v-if="selectedCurrency && baseCode" class="font-normal text-gray-400">
+                            (لكل 1 {{ selectedCurrency.code }})
+                        </span>
+                    </InputLabel>
+                    <div class="relative mt-1">
+                        <TextInput
+                            id="rate"
+                            v-model="form.rate"
+                            type="number"
+                            inputmode="decimal"
+                            step="any"
+                            min="0.0000000001"
+                            placeholder="0.00"
+                            class="block w-full pe-16 text-xl font-semibold tabular-nums"
+                            :error="Boolean(form.errors.rate)"
+                        />
+                        <span
+                            v-if="baseCode"
+                            class="pointer-events-none absolute inset-y-0 end-3 flex items-center text-sm font-bold text-gray-400 dark:text-slate-500"
+                        >
+                            {{ baseCode }}
+                        </span>
+                    </div>
+                    <!-- تعديل السعر يدوياً مسموح، لكنه يغيّر الربح — فليكن ظاهراً لا صامتاً. -->
+                    <p v-if="rateOverridden" class="mt-1 flex flex-wrap items-center gap-1 text-xs text-amber-700 dark:text-amber-400">
+                        <span>سعر مُعدَّل — الرسمي {{ rate(officialRate) }}</span>
+                        <button type="button" class="font-semibold underline hover:no-underline" @click="suggestRate">
+                            استعادة
+                        </button>
+                    </p>
+                    <p v-else-if="officialRate !== null" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        السعر الرسمي {{ isSell ? 'للبيع' : 'للشراء' }}
+                    </p>
+                    <p v-else class="mt-1 text-xs text-amber-700 dark:text-amber-400">
+                        لا يوجد سعر صرف مسجّل لهذه العملة — أدخل السعر يدوياً.
+                    </p>
+                    <InputError :message="form.errors.rate" class="mt-1" />
+                </div>
+            </div>
+        </section>
+
+        <!-- ٤. بيانات العميل: اختيارية ومطوية كي لا تبطئ العملية المعتادة. -->
+        <section class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <button
+                type="button"
+                class="flex w-full items-center justify-between gap-2 p-5 text-start"
+                :aria-expanded="showCustomerFields"
+                aria-controls="customer-fields"
+                @click="showCustomerFields = !showCustomerFields"
             >
-                {{ number(total) }}
-                <span class="text-base font-normal opacity-70">{{ baseCode }}</span>
-            </div>
+                <span class="flex items-center gap-2">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600 dark:bg-slate-600 dark:text-slate-200">4</span>
+                    <span class="text-sm font-semibold text-gray-800 dark:text-white">بيانات العميل</span>
+                    <span class="text-xs font-normal text-gray-400">(اختياري)</span>
+                    <span
+                        v-if="!showCustomerFields && form.customer_name"
+                        class="truncate rounded bg-indigo-50 px-1.5 py-0.5 text-[11px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                    >
+                        {{ form.customer_name }}
+                    </span>
+                </span>
+                <svg
+                    class="h-4 w-4 shrink-0 text-gray-400 transition-transform"
+                    :class="showCustomerFields ? 'rotate-180' : ''"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
 
-            <p v-if="selectedCurrency && Number(form.amount) > 0" class="mt-1 text-xs text-gray-500 dark:text-slate-400">
-                {{ isSell ? 'تُسلّم' : 'تستلم' }} {{ number(form.amount) }} {{ selectedCurrency.code }}
-                ·
-                {{ isSell ? 'تستلم' : 'تدفع' }} {{ number(total) }} {{ baseCode }}
-            </p>
-        </div>
+            <div v-show="showCustomerFields" id="customer-fields" class="grid gap-4 border-t border-gray-100 p-5 sm:grid-cols-2 dark:border-slate-700">
+                <div>
+                    <InputLabel for="customer_name" value="اسم العميل" />
+                    <TextInput id="customer_name" v-model="form.customer_name" class="mt-1 block w-full" maxlength="255" />
+                    <InputError :message="form.errors.customer_name" class="mt-1" />
+                </div>
+                <div>
+                    <InputLabel for="customer_phone" value="رقم الهاتف" />
+                    <TextInput id="customer_phone" v-model="form.customer_phone" type="tel" inputmode="tel" dir="ltr" class="mt-1 block w-full text-end" maxlength="50" />
+                    <InputError :message="form.errors.customer_phone" class="mt-1" />
+                </div>
+                <div class="sm:col-span-2">
+                    <InputLabel for="notes" value="ملاحظات" />
+                    <TextInput id="notes" v-model="form.notes" class="mt-1 block w-full" maxlength="1000" />
+                    <InputError :message="form.errors.notes" class="mt-1" />
+                </div>
+            </div>
+        </section>
 
-        <!-- كفاية الرصيد: الخادم يرفض العملية عند النقص، فنُظهره قبل الإرسال. -->
-        <div
-            v-if="fundingSide.code"
-            class="rounded-md border p-3 text-xs"
-            :class="insufficient
-                ? 'border-rose-300 bg-rose-50 text-rose-800 dark:border-rose-700/60 dark:bg-rose-900/25 dark:text-rose-200'
-                : 'border-gray-200 bg-gray-50 text-gray-600 dark:border-slate-600 dark:bg-slate-700/40 dark:text-slate-300'"
-            :role="insufficient ? 'alert' : null"
-        >
-            <div class="flex items-center justify-between gap-2">
-                <span>الرصيد المتاح من {{ fundingSide.code }}</span>
-                <span class="font-semibold">{{ number(fundingSide.available) }}</span>
-            </div>
-            <div v-if="fundingSide.required > 0" class="mt-1 flex items-center justify-between gap-2">
-                <span>{{ insufficient ? 'النقص' : 'المتبقي بعد العملية' }}</span>
-                <span class="font-semibold">{{ number(Math.abs(remaining)) }}</span>
-            </div>
-            <p v-if="insufficient" class="mt-1.5 font-semibold">
-                الرصيد غير كافٍ لإتمام هذه العملية.
-            </p>
-        </div>
-
-        <button
-            type="button"
-            @click="showCustomerFields = !showCustomerFields"
-            class="text-sm text-indigo-600 hover:underline"
-        >
-            {{ showCustomerFields ? 'إخفاء بيانات العميل' : '+ إضافة بيانات العميل (اختياري)' }}
-        </button>
-
-        <div v-if="showCustomerFields" class="space-y-4">
-            <div>
-                <InputLabel for="customer_name" value="اسم العميل" />
-                <TextInput id="customer_name" v-model="form.customer_name" class="mt-1 block w-full" />
-            </div>
-            <div>
-                <InputLabel for="customer_phone" value="رقم الهاتف" />
-                <TextInput id="customer_phone" v-model="form.customer_phone" class="mt-1 block w-full" />
-            </div>
-            <div>
-                <InputLabel for="notes" value="ملاحظات" />
-                <TextInput id="notes" v-model="form.notes" class="mt-1 block w-full" />
-            </div>
-        </div>
+        <!-- الملخص داخل النموذج للشاشات الصغيرة؛ على الكبيرة يظهر في العمود الجانبي. -->
+        <TransactionSummary :summary="summary" class="lg:hidden" />
 
         <InputError :message="form.errors.shift" />
 
-        <PrimaryButton :disabled="!canSubmit" class="w-full justify-center py-3 text-base">
-            {{ form.processing ? 'جارٍ الحفظ…' : 'تسجيل العملية' }}
-        </PrimaryButton>
+        <!-- شريط الإجراءات: ثابت أسفل الشاشة على الهاتف كي لا يُبحث عن الزر بعد التمرير. -->
+        <div class="sticky bottom-0 -mx-4 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-xl sm:border sm:px-5 dark:border-slate-700 dark:bg-slate-800/95">
+            <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    class="rounded-lg border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                    :disabled="!isDirty || form.processing"
+                    @click="clearEntry"
+                >
+                    مسح
+                </button>
+
+                <button
+                    type="submit"
+                    class="flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-3 text-base font-bold text-white shadow-sm transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-slate-900"
+                    :class="isSell
+                        ? 'bg-rose-600 hover:bg-rose-700 focus:ring-rose-500'
+                        : 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500'"
+                    :disabled="!canSubmit"
+                >
+                    <svg v-if="form.processing" class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                    {{ form.processing ? 'جارٍ الحفظ…' : isSell ? 'تسجيل عملية البيع' : 'تسجيل عملية الشراء' }}
+                </button>
+            </div>
+
+            <p
+                class="mt-2 text-center text-xs"
+                :class="blocker && insufficient ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400 dark:text-slate-500'"
+                aria-live="polite"
+            >
+                {{ blocker ?? 'اضغط Enter للتسجيل مباشرةً من حقل المبلغ أو السعر.' }}
+            </p>
+        </div>
     </form>
 </template>
