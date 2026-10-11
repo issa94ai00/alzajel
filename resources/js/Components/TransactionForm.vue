@@ -8,7 +8,7 @@ import OldLiraHint from '@/Components/OldLiraHint.vue';
 import TransactionSummary from '@/Components/TransactionSummary.vue';
 import { useFormat } from '@/composables/useFormat';
 import { useForm } from '@inertiajs/vue3';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const props = defineProps({
     currencies: { type: Array, required: true },
@@ -21,10 +21,11 @@ const props = defineProps({
 // الصفحة الأم تعرض الملخص في عمود جانبي على الشاشات الكبيرة.
 const emit = defineEmits(['update:summary']);
 
-const { rate } = useFormat();
+const { number, rate } = useFormat();
 
 const showCustomerFields = ref(false);
 const amountInput = ref(null);
+const typeGroup = ref(null);
 
 const form = useForm({
     type: 'sell',
@@ -79,6 +80,27 @@ watch(() => form.currency_id, () => {
     // فئة العملة السابقة لا معنى لها بعد تبديل العملة، فتُستبدل بفئة الجديدة.
     form.currency_tag = selectedCurrency.value?.tag ?? '';
 });
+
+/* ------------------------------ اتجاه العملية ----------------------------- */
+
+/** اختيار الاتجاه بالنقر: الخطوة التالية دائماً كتابة المبلغ، فننقل التركيز إليه. */
+function chooseType(type) {
+    form.type = type;
+    focusAmount();
+}
+
+/**
+ * الزرّان مجموعة اختيار واحدة، فتتنقّل الأسهم بينهما كما في أزرار الراديو
+ * الأصلية، ويبقى التركيز على الخيار المحدَّد لا على المبلغ.
+ */
+function onTypeKeydown(event) {
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+
+    event.preventDefault();
+    form.type = isSell.value ? 'buy' : 'sell';
+
+    nextTick(() => typeGroup.value?.querySelector('[aria-checked="true"]')?.focus());
+}
 
 /* ------------------------------ كفاية الرصيد ----------------------------- */
 
@@ -152,7 +174,12 @@ const blocker = computed(() => {
 const canSubmit = computed(() => !form.processing && blocker.value === null);
 
 const isDirty = computed(
-    () => form.amount !== '' || form.customer_name !== '' || form.customer_phone !== '' || form.notes !== '',
+    () =>
+        form.amount !== '' ||
+        rateOverridden.value ||
+        form.customer_name !== '' ||
+        form.customer_phone !== '' ||
+        form.notes !== '',
 );
 
 function focusAmount() {
@@ -168,6 +195,30 @@ function clearEntry() {
     focusAmount();
 }
 
+/** ترتيب الحقول كما تظهر على الشاشة — به نختار أول خطأ يُقفَز إليه. */
+const FIELD_ORDER = ['type', 'currency_id', 'currency_tag', 'amount', 'rate', 'customer_name', 'customer_phone', 'notes'];
+
+const CUSTOMER_FIELDS = ['customer_name', 'customer_phone', 'notes'];
+
+/**
+ * رفض الخادم يأتي بعد أن يكون الصرّاف قد ترك الحقل؛ وعلى الهاتف قد يكون
+ * الحقل خارج الشاشة أصلاً. نفتح القسم المطوي إن لزم، ثم نقفز إلى الحقل.
+ */
+function focusFirstError(errors) {
+    const field = FIELD_ORDER.find((name) => errors[name]);
+
+    if (!field) return;
+
+    if (CUSTOMER_FIELDS.includes(field)) showCustomerFields.value = true;
+
+    nextTick(() => {
+        const element = document.getElementById(field);
+
+        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element?.focus?.({ preventScroll: true });
+    });
+}
+
 function submit() {
     if (!canSubmit.value) return;
 
@@ -177,12 +228,22 @@ function submit() {
         preserveState: true,
         preserveScroll: true,
         onSuccess: clearEntry,
+        onError: focusFirstError,
     });
 }
 
+/*
+ * نافذة طباعة الإيصال تأخذ التركيز بعد الحفظ؛ وحين تُغلق يجب أن يعود إلى
+ * حقل المبلغ كي يبدأ الصرّاف العملية التالية دون نقرة إضافية.
+ */
 onMounted(() => {
     suggestRate();
     focusAmount();
+    window.addEventListener('receipt-prompt:closed', focusAmount);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('receipt-prompt:closed', focusAmount);
 });
 </script>
 
@@ -197,12 +258,20 @@ onMounted(() => {
                 <h3 class="text-sm font-semibold text-gray-800 dark:text-white">اتجاه العملية</h3>
             </div>
 
-            <div class="grid grid-cols-2 gap-3" role="radiogroup" aria-label="اتجاه العملية">
+            <div
+                id="type"
+                ref="typeGroup"
+                class="grid grid-cols-2 gap-3"
+                role="radiogroup"
+                aria-label="اتجاه العملية"
+                @keydown="onTypeKeydown"
+            >
                 <button
                     type="button"
                     role="radio"
                     :aria-checked="isSell"
-                    @click="form.type = 'sell'"
+                    :tabindex="isSell ? 0 : -1"
+                    @click="chooseType('sell')"
                     class="flex items-center gap-3 rounded-lg border-2 px-4 py-3 text-start transition focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800"
                     :class="isSell
                         ? 'border-rose-600 bg-rose-50 text-rose-800 dark:bg-rose-900/30 dark:text-rose-200'
@@ -225,7 +294,8 @@ onMounted(() => {
                     type="button"
                     role="radio"
                     :aria-checked="!isSell"
-                    @click="form.type = 'buy'"
+                    :tabindex="isSell ? -1 : 0"
+                    @click="chooseType('buy')"
                     class="flex items-center gap-3 rounded-lg border-2 px-4 py-3 text-start transition focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800"
                     :class="!isSell
                         ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200'
@@ -256,10 +326,12 @@ onMounted(() => {
             </div>
 
             <CurrencyPicker
+                id="currency_id"
                 v-model="form.currency_id"
                 :currencies="currencies"
                 :balances="balances"
                 :type="form.type"
+                @update:model-value="focusAmount"
             />
             <InputError :message="form.errors.currency_id" class="mt-1" />
 
@@ -423,6 +495,22 @@ onMounted(() => {
 
         <!-- شريط الإجراءات: ثابت أسفل الشاشة على الهاتف كي لا يُبحث عن الزر بعد التمرير. -->
         <div class="sticky bottom-0 -mx-4 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-xl sm:border sm:px-5 dark:border-slate-700 dark:bg-slate-800/95">
+            <!-- على الهاتف تبتعد بطاقة الملخص عن الزر، فيبقى الإجمالي هنا أمام الإبهام. -->
+            <div class="mb-2 flex items-center justify-between gap-3 text-sm lg:hidden">
+                <span class="text-gray-500 dark:text-slate-400">
+                    {{ isSell ? 'تستلم من العميل' : 'تدفع للعميل' }}
+                </span>
+                <span
+                    class="tabular-nums"
+                    :class="total > 0
+                        ? (insufficient ? 'font-bold text-rose-600 dark:text-rose-400' : 'font-bold text-gray-900 dark:text-white')
+                        : 'text-gray-300 dark:text-slate-600'"
+                >
+                    {{ total > 0 ? number(total) : '—' }}
+                    <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">{{ baseCode }}</span>
+                </span>
+            </div>
+
             <div class="flex items-center gap-3">
                 <button
                     type="button"

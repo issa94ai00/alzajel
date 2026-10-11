@@ -32,17 +32,27 @@ watch(
     { immediate: true },
 );
 
+/**
+ * عند الإغلاق — بالطباعة أو بالتأجيل — نُعلم الصفحة كي تُعيد التركيز إلى
+ * حيث يبدأ الصرّاف العملية التالية (حقل المبلغ في نموذج العملية).
+ */
+function dismiss() {
+    pending.value = null;
+
+    window.dispatchEvent(new CustomEvent('receipt-prompt:closed'));
+}
+
 function print() {
     const url = pending.value?.url;
 
-    pending.value = null;
+    dismiss();
 
     if (url) window.open(url, '_blank');
 }
 </script>
 
 <template>
-    <Modal :show="Boolean(pending)" max-width="md" @close="pending = null">
+    <Modal :show="Boolean(pending)" max-width="md" @close="dismiss">
         <div class="p-6 text-center">
             <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
                 <svg class="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -61,7 +71,7 @@ function print() {
 
             <div class="mt-5 flex justify-center gap-3">
                 <PrimaryButton autofocus @click="print">طباعة الإيصال</PrimaryButton>
-                <SecondaryButton @click="pending = null">لاحقاً</SecondaryButton>
+                <SecondaryButton @click="dismiss">لاحقاً</SecondaryButton>
             </div>
         </div>
     </Modal>
