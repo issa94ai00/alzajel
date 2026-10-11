@@ -9,6 +9,11 @@ import ReceiptPrompt from '@/Components/ReceiptPrompt.vue';
 import { useDarkMode } from '@/composables/useDarkMode';
 import { Link, usePage } from '@inertiajs/vue3';
 
+defineProps({
+    // صفحة تذكر الوردية في رأسها بنفسها تستطيع إخفاء الشريط العام كي لا يتكرر.
+    showShiftBanner: { type: Boolean, default: true },
+});
+
 const { isDark, toggle: toggleDarkMode } = useDarkMode();
 
 const page = usePage();
@@ -129,7 +134,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+    <div class="flex h-screen overflow-hidden bg-slate-50 supports-[height:100dvh]:h-dvh dark:bg-slate-950">
         <!-- Mobile backdrop -->
         <Transition
             enter-active-class="transition-opacity duration-200 ease-out"
@@ -263,7 +268,7 @@ onUnmounted(() => {
                 </button>
             </header>
 
-            <ShiftStatusBanner />
+            <ShiftStatusBanner v-if="showShiftBanner" />
 
             <ReceiptPrompt />
 

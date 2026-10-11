@@ -70,7 +70,8 @@ function time(value) {
 <template>
     <Head title="عملية جديدة" />
 
-    <AuthenticatedLayout>
+    <!-- الرأس يذكر الوردية وعدد عملياتها، فشريط الوردية العام تكرارٌ يأكل ارتفاع شاشة الهاتف. -->
+    <AuthenticatedLayout :show-shift-banner="false">
         <template #header>
             <!-- الرأس ارتفاعه ثابت؛ على الهاتف يُطوى الرابط كي لا يلتفّ تحت العنوان ويُقصّ. -->
             <div class="flex items-center justify-between gap-3">
@@ -101,7 +102,7 @@ function time(value) {
         >
             <div
                 v-if="justSaved"
-                class="pointer-events-none fixed inset-x-0 top-4 z-40 flex justify-center px-4"
+                class="pointer-events-none fixed inset-x-0 top-[max(1rem,env(safe-area-inset-top))] z-40 flex justify-center px-4"
                 role="status"
                 aria-live="polite"
             >
@@ -141,9 +142,9 @@ function time(value) {
             </div>
         </Transition>
 
-        <div class="py-6 sm:py-8">
+        <div class="py-4 sm:py-6 lg:py-8">
             <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <div class="grid gap-6 lg:grid-cols-5 lg:items-start">
+                <div class="grid gap-4 sm:gap-6 lg:grid-cols-5 lg:items-start">
                     <div class="lg:col-span-3">
                         <TransactionForm
                             :currencies="currencies"
@@ -158,7 +159,7 @@ function time(value) {
                         <TransactionSummary v-if="summary" :summary="summary" class="hidden lg:block" />
 
                         <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                            <div class="flex items-center justify-between gap-2 border-b border-gray-100 px-5 py-3 dark:border-slate-700">
+                            <div class="flex items-center justify-between gap-2 border-b border-gray-100 px-4 py-3 dark:border-slate-700 sm:px-5">
                                 <h3 class="text-sm font-semibold text-gray-800 dark:text-white">آخر عمليات الوردية</h3>
                                 <Link
                                     v-if="recentTransactions.length"
@@ -169,11 +170,11 @@ function time(value) {
                                 </Link>
                             </div>
 
-                            <ul v-if="recentTransactions.length" class="divide-y divide-gray-100 px-5 dark:divide-slate-700">
+                            <ul v-if="recentTransactions.length" class="divide-y divide-gray-100 px-4 dark:divide-slate-700 sm:px-5">
                                 <li
                                     v-for="t in recentTransactions"
                                     :key="t.id"
-                                    class="-mx-5 flex items-center justify-between gap-3 px-5 py-2.5 transition-colors duration-700"
+                                    class="-mx-4 flex items-center justify-between gap-3 px-4 py-2.5 transition-colors duration-700 sm:-mx-5 sm:px-5"
                                     :class="t.id === justSaved?.id ? 'bg-emerald-50 dark:bg-emerald-900/20' : ''"
                                 >
                                     <div class="min-w-0">
@@ -225,7 +226,7 @@ function time(value) {
                                 </li>
                             </ul>
 
-                            <p v-else class="px-5 py-6 text-center text-xs text-gray-400 dark:text-slate-500">
+                            <p v-else class="px-4 py-6 text-center text-xs text-gray-400 dark:text-slate-500 sm:px-5">
                                 لم تُسجَّل عمليات في هذه الوردية بعد.
                             </p>
                         </div>

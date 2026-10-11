@@ -69,19 +69,19 @@ function select(currency) {
                 v-model="query"
                 type="search"
                 placeholder="ابحث بالرمز أو الاسم أو الفئة…"
-                class="w-44 rounded-md border-gray-300 py-1 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                class="w-full rounded-md border-gray-300 py-1 text-xs shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white sm:w-44"
                 aria-label="تصفية العملات"
             />
         </div>
 
-        <div class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
             <button
                 v-for="currency in visible"
                 :key="currency.id"
                 type="button"
                 :aria-pressed="isSelected(currency)"
                 @click="select(currency)"
-                class="rounded-lg border p-3 text-start transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800"
+                class="min-w-0 rounded-lg border p-2.5 text-start transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800 sm:p-3"
                 :class="isSelected(currency)
                     ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600 dark:border-indigo-400 dark:bg-indigo-900/30 dark:ring-indigo-400'
                     : 'border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50/40 dark:border-slate-600 dark:bg-slate-800 dark:hover:border-indigo-500/60 dark:hover:bg-slate-700/40'"

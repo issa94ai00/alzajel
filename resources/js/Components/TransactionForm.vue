@@ -252,7 +252,7 @@ onUnmounted(() => {
         <NewLiraNotice compact :currencies="currencies" dismiss-key="transaction-form" />
 
         <!-- ١. اتجاه العملية: الفرق بين البيع والشراء هو أكثر ما يُخطئ فيه، لذا يبقى أول قرار وأوضحه. -->
-        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-5">
             <div class="mb-3 flex items-center gap-2">
                 <span class="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">1</span>
                 <h3 class="text-sm font-semibold text-gray-800 dark:text-white">اتجاه العملية</h3>
@@ -272,7 +272,7 @@ onUnmounted(() => {
                     :aria-checked="isSell"
                     :tabindex="isSell ? 0 : -1"
                     @click="chooseType('sell')"
-                    class="flex items-center gap-3 rounded-lg border-2 px-4 py-3 text-start transition focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800"
+                    class="flex flex-col items-center gap-2 rounded-lg border-2 px-3 py-3 text-center transition focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800 sm:flex-row sm:gap-3 sm:px-4 sm:text-start"
                     :class="isSell
                         ? 'border-rose-600 bg-rose-50 text-rose-800 dark:bg-rose-900/30 dark:text-rose-200'
                         : 'border-gray-200 text-gray-500 hover:border-rose-300 hover:bg-rose-50/40 dark:border-slate-600 dark:text-slate-400 dark:hover:border-rose-500/60'"
@@ -287,7 +287,7 @@ onUnmounted(() => {
                     </span>
                     <span class="min-w-0">
                         <span class="block text-base font-bold">بيع</span>
-                        <span class="block truncate text-xs opacity-80">تُسلّم العملة للعميل</span>
+                        <span class="block text-[11px] leading-tight opacity-80 sm:text-xs">تُسلّم العملة للعميل</span>
                     </span>
                 </button>
                 <button
@@ -296,7 +296,7 @@ onUnmounted(() => {
                     :aria-checked="!isSell"
                     :tabindex="isSell ? -1 : 0"
                     @click="chooseType('buy')"
-                    class="flex items-center gap-3 rounded-lg border-2 px-4 py-3 text-start transition focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800"
+                    class="flex flex-col items-center gap-2 rounded-lg border-2 px-3 py-3 text-center transition focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 dark:focus:ring-offset-slate-800 sm:flex-row sm:gap-3 sm:px-4 sm:text-start"
                     :class="!isSell
                         ? 'border-emerald-600 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200'
                         : 'border-gray-200 text-gray-500 hover:border-emerald-300 hover:bg-emerald-50/40 dark:border-slate-600 dark:text-slate-400 dark:hover:border-emerald-500/60'"
@@ -311,7 +311,7 @@ onUnmounted(() => {
                     </span>
                     <span class="min-w-0">
                         <span class="block text-base font-bold">شراء</span>
-                        <span class="block truncate text-xs opacity-80">تستلم العملة من العميل</span>
+                        <span class="block text-[11px] leading-tight opacity-80 sm:text-xs">تستلم العملة من العميل</span>
                     </span>
                 </button>
             </div>
@@ -319,7 +319,7 @@ onUnmounted(() => {
         </section>
 
         <!-- ٢. العملة وفئتها -->
-        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-5">
             <div class="mb-3 flex items-center gap-2">
                 <span class="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">2</span>
                 <h3 class="text-sm font-semibold text-gray-800 dark:text-white">العملة</h3>
@@ -354,7 +354,7 @@ onUnmounted(() => {
         </section>
 
         <!-- ٣. المبلغ والسعر -->
-        <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <section class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-5">
             <div class="mb-3 flex items-center gap-2">
                 <span class="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">3</span>
                 <h3 class="text-sm font-semibold text-gray-800 dark:text-white">المبلغ والسعر</h3>
@@ -440,7 +440,7 @@ onUnmounted(() => {
         <section class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <button
                 type="button"
-                class="flex w-full items-center justify-between gap-2 p-5 text-start"
+                class="flex w-full items-center justify-between gap-2 p-4 text-start sm:p-5"
                 :aria-expanded="showCustomerFields"
                 aria-controls="customer-fields"
                 @click="showCustomerFields = !showCustomerFields"
@@ -469,7 +469,7 @@ onUnmounted(() => {
                 </svg>
             </button>
 
-            <div v-show="showCustomerFields" id="customer-fields" class="grid gap-4 border-t border-gray-100 p-5 sm:grid-cols-2 dark:border-slate-700">
+            <div v-show="showCustomerFields" id="customer-fields" class="grid gap-4 border-t border-gray-100 p-4 sm:grid-cols-2 sm:p-5 dark:border-slate-700">
                 <div>
                     <InputLabel for="customer_name" value="اسم العميل" />
                     <TextInput id="customer_name" v-model="form.customer_name" class="mt-1 block w-full" maxlength="255" />
@@ -494,7 +494,7 @@ onUnmounted(() => {
         <InputError :message="form.errors.shift" />
 
         <!-- شريط الإجراءات: ثابت أسفل الشاشة على الهاتف كي لا يُبحث عن الزر بعد التمرير. -->
-        <div class="sticky bottom-0 -mx-4 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-xl sm:border sm:px-5 dark:border-slate-700 dark:bg-slate-800/95">
+        <div class="sticky bottom-0 -mx-4 border-t border-gray-200 bg-white/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:mx-0 sm:rounded-xl sm:border sm:px-5 sm:pb-3 dark:border-slate-700 dark:bg-slate-800/95">
             <!-- على الهاتف تبتعد بطاقة الملخص عن الزر، فيبقى الإجمالي هنا أمام الإبهام. -->
             <div class="mb-2 flex items-center justify-between gap-3 text-sm lg:hidden">
                 <span class="text-gray-500 dark:text-slate-400">
@@ -537,9 +537,13 @@ onUnmounted(() => {
                 </button>
             </div>
 
+            <!-- تلميح Enter لا معنى له على لوحة مفاتيح الهاتف، ويُخفى كلياً على الشاشات القصيرة (الهاتف بالعرض) توفيراً للمساحة. -->
             <p
-                class="mt-2 text-center text-xs"
-                :class="blocker && insufficient ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400 dark:text-slate-500'"
+                class="mt-2 text-center text-xs [@media(max-height:520px)]:hidden"
+                :class="[
+                    blocker && insufficient ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400 dark:text-slate-500',
+                    blocker ? '' : 'hidden sm:block',
+                ]"
                 aria-live="polite"
             >
                 {{ blocker ?? 'اضغط Enter للتسجيل مباشرةً من حقل المبلغ أو السعر.' }}

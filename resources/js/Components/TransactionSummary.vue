@@ -46,7 +46,7 @@ const remaining = computed(() => funding.value.available - funding.value.require
         :class="summary.insufficient ? 'border-rose-300 dark:border-rose-700/60' : 'border-gray-200 dark:border-slate-700'"
     >
         <div
-            class="flex items-center justify-between gap-2 px-5 py-3"
+            class="flex items-center justify-between gap-2 px-4 py-3 sm:px-5"
             :class="isSell ? 'bg-rose-50 dark:bg-rose-900/20' : 'bg-emerald-50 dark:bg-emerald-900/20'"
         >
             <h3 class="text-sm font-semibold text-gray-800 dark:text-white">ملخص العملية</h3>
@@ -58,7 +58,7 @@ const remaining = computed(() => funding.value.available - funding.value.require
             </span>
         </div>
 
-        <div class="space-y-3 px-5 py-4">
+        <div class="space-y-3 px-4 py-4 sm:px-5">
             <!-- ما يخرج من الصندوق -->
             <div class="flex items-center justify-between gap-3">
                 <span class="flex items-center gap-2 text-sm text-gray-500 dark:text-slate-400">
@@ -113,7 +113,7 @@ const remaining = computed(() => funding.value.available - funding.value.require
         <!-- كفاية الرصيد: الخادم يرفض العملية عند النقص، فنُظهره قبل الإرسال. -->
         <div
             v-if="funding.code"
-            class="border-t px-5 py-3 text-xs"
+            class="border-t px-4 py-3 text-xs sm:px-5"
             :class="summary.insufficient
                 ? 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-700/60 dark:bg-rose-900/25 dark:text-rose-200'
                 : 'border-gray-200 bg-gray-50 text-gray-600 dark:border-slate-700 dark:bg-slate-700/40 dark:text-slate-300'"
