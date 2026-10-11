@@ -14,7 +14,7 @@ return [
 
     'settings' => [
         // معلومات الجهة — تظهر في ترويسة الإيصالات والتقارير
-        'company.name' => 'Sahli Soft',
+        'company.name' => 'DamaTech',
         'company.branch' => '',
         'company.phone' => '',
         'company.address' => '',

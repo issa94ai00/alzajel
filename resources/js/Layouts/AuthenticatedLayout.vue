@@ -165,7 +165,7 @@ onUnmounted(() => {
                         <NavIcon name="currency" class="h-5 w-5 text-indigo-400" />
                     </span>
                     <span class="min-w-0">
-                        <span class="block truncate text-sm font-bold leading-tight text-white">Sahli Soft</span>
+                        <span class="block truncate text-sm font-bold leading-tight text-white">DamaTech</span>
                         <span class="block truncate text-xs leading-tight text-slate-400">نظام إدارة الصرافة</span>
                     </span>
                 </Link>
