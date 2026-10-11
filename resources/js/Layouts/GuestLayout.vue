@@ -14,7 +14,7 @@ const features = ['إدارة الورديات والصرافين', 'تتبع ا
 
             <div class="relative flex flex-1 flex-col items-center justify-center text-center">
                 <div class="rounded-3xl bg-white/10 p-2.5 shadow-2xl shadow-black/40 ring-1 ring-white/20 backdrop-blur">
-                    <img src="/logo.webp" alt="DamaTech" class="h-28 w-28 rounded-2xl" />
+                    <img src="/logo-damatech.webp" alt="DamaTech" class="h-28 w-28 rounded-2xl" />
                 </div>
                 <h1 class="mt-7 text-3xl font-extrabold tracking-tight text-white">DamaTech</h1>
                 <p class="mt-2 text-sm font-medium text-slate-300">نظام إدارة الصرافة</p>
@@ -36,7 +36,7 @@ const features = ['إدارة الورديات والصرافين', 'تتبع ا
 
             <div class="relative flex flex-col items-center lg:hidden">
                 <div class="rounded-2xl bg-white/80 p-1.5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-                    <img src="/logo.webp" alt="DamaTech" class="h-16 w-16 rounded-xl" />
+                    <img src="/logo-damatech.webp" alt="DamaTech" class="h-16 w-16 rounded-xl" />
                 </div>
                 <p class="mt-3 text-lg font-bold text-slate-800 dark:text-white">DamaTech</p>
                 <p class="text-xs text-slate-400 dark:text-slate-500">نظام إدارة الصرافة</p>
