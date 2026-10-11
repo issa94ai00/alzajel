@@ -17,8 +17,8 @@ class ExchangeRate extends Model
     protected function casts(): array
     {
         return [
-            'buy_rate' => 'decimal:4',
-            'sell_rate' => 'decimal:4',
+            'buy_rate' => 'decimal:10',
+            'sell_rate' => 'decimal:10',
         ];
     }
 

@@ -43,6 +43,21 @@ class CloseShiftTest extends TestCase
         $this->assertSame('open', $shift->fresh()->status);
     }
 
+    /**
+     * الصرّاف يغلق ورديته هو — بدون هذه الصلاحية يعلق مع وردية مفتوحة للأبد،
+     * لأن القفل الفريد يمنعه من فتح وردية أخرى.
+     */
+    public function test_cashier_can_close_their_own_shift(): void
+    {
+        $cashier = $this->createCashier();
+        $shift = app(ShiftService::class)->openShift($cashier);
+
+        $response = $this->actingAs($cashier)->post(route('shifts.close', $shift));
+
+        $response->assertRedirect(route('shifts.show', $shift));
+        $this->assertSame('closed', $shift->fresh()->status);
+    }
+
     public function test_closing_snapshots_current_balance_as_closing_balance(): void
     {
         $admin = $this->createAdmin();

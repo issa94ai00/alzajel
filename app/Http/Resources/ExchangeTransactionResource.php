@@ -13,6 +13,7 @@ class ExchangeTransactionResource extends JsonResource
             'id' => $this->id,
             'shift_id' => $this->shift_id,
             'type' => $this->type,
+            'currency_tag' => $this->currency_tag,
             'amount' => $this->amount,
             'rate' => $this->rate,
             'total' => $this->total,

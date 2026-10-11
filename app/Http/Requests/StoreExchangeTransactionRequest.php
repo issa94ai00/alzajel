@@ -17,6 +17,7 @@ class StoreExchangeTransactionRequest extends FormRequest
     {
         return [
             'currency_id' => ['required', 'integer', 'exists:currencies,id'],
+            'currency_tag' => ['nullable', 'string', 'max:50'],
             'type' => ['required', Rule::in([ExchangeTransaction::TYPE_BUY, ExchangeTransaction::TYPE_SELL])],
             'amount' => ['required', 'numeric', 'gt:0'],
             'rate' => ['nullable', 'numeric', 'gt:0'],

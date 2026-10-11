@@ -10,6 +10,11 @@ const props = defineProps({
         type: String,
         default: '48',
     },
+    /** 'up' يفتح القائمة فوق الزرّ — لازم حين يكون الزرّ ملاصقاً لأسفل الشاشة. */
+    drop: {
+        type: String,
+        default: 'down',
+    },
     contentClasses: {
         type: String,
         default: 'py-1 bg-white dark:bg-slate-800',
@@ -30,6 +35,8 @@ const widthClass = computed(() => {
         48: 'w-48',
     }[props.width.toString()];
 });
+
+const dropClasses = computed(() => (props.drop === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'));
 
 const alignmentClasses = computed(() => {
     if (props.align === 'left') {
@@ -67,8 +74,8 @@ const open = ref(false);
         >
             <div
                 v-show="open"
-                class="absolute z-50 mt-2 rounded-md shadow-lg"
-                :class="[widthClass, alignmentClasses]"
+                class="absolute z-50 rounded-md shadow-lg"
+                :class="[widthClass, alignmentClasses, dropClasses]"
                 style="display: none"
                 @click="open = false"
             >

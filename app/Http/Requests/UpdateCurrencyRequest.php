@@ -7,6 +7,8 @@ use Illuminate\Validation\Rule;
 
 class UpdateCurrencyRequest extends FormRequest
 {
+    use NormalizesCurrencyTag;
+
     public function authorize(): bool
     {
         return $this->user()->can('update', $this->route('currency'));
@@ -15,9 +17,10 @@ class UpdateCurrencyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required', 'string', 'size:3', 'uppercase', Rule::unique('currencies', 'code')->ignore($this->route('currency'))],
+            'code' => ['required', 'string', 'size:3', 'uppercase', $this->uniqueCodePerTag()],
             'name' => ['required', 'string', 'max:255'],
             'symbol' => ['nullable', 'string', 'max:10'],
+            'tag' => ['nullable', 'string', 'max:50', Rule::unique('currencies', 'tag')->ignore($this->route('currency'))],
             'is_active' => ['boolean'],
         ];
     }

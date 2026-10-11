@@ -14,6 +14,7 @@ const form = useForm({
     code: props.currency.code,
     name: props.currency.name,
     symbol: props.currency.symbol ?? '',
+    tag: props.currency.tag ?? '',
     is_active: props.currency.is_active,
 });
 
@@ -60,6 +61,16 @@ function submit() {
                         <InputLabel for="symbol" value="العلامة (اختياري)" />
                         <TextInput id="symbol" v-model="form.symbol" class="mt-1 block w-full" />
                         <InputError :message="form.errors.symbol" class="mt-1" />
+                    </div>
+
+                    <!-- رمز الفئة: ما يسمح بوجود USD مرتين — فئة المئة وفئة الخمسين — بسعر ورصيد مستقلين لكل منهما. -->
+                    <div>
+                        <InputLabel for="tag" value="رمز الفئة (اختياري)" />
+                        <TextInput id="tag" v-model="form.tag" class="mt-1 block w-full" maxlength="50" placeholder="مثال: USD-100" />
+                        <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">
+                            سلسلة مميزة تفرّق بين فئات العملة الواحدة. اتركه فارغاً إن كانت للعملة فئة واحدة.
+                        </p>
+                        <InputError :message="form.errors.tag" class="mt-1" />
                     </div>
 
                     <div class="flex items-center gap-2">

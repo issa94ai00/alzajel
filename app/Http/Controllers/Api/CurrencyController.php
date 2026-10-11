@@ -39,6 +39,7 @@ class CurrencyController extends Controller
             'code' => $request->validated('code'),
             'name' => $request->validated('name'),
             'symbol' => $request->validated('symbol'),
+            'tag' => $request->validated('tag'),
             'is_active' => $request->boolean('is_active', true),
         ]);
 
@@ -51,6 +52,7 @@ class CurrencyController extends Controller
             'code' => $request->validated('code'),
             'name' => $request->validated('name'),
             'symbol' => $request->validated('symbol'),
+            'tag' => $request->validated('tag'),
             'is_active' => $currency->is_base ? true : $request->boolean('is_active', true),
         ]);
 

@@ -13,7 +13,15 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'phone' => $this->phone,
+            'employee_no' => $this->employee_no,
+            'status' => $this->status,
+            'status_label' => $this->statusLabel(),
+            'must_change_password' => (bool) $this->must_change_password,
+            'last_login_at' => $this->last_login_at?->toIso8601String(),
             'roles' => $this->getRoleNames(),
+            // التطبيق يبني قوائمه وأزراره على هذه القائمة بدل التحقق من اسم الدور.
+            'permissions' => $this->getAllPermissions()->pluck('name')->values(),
         ];
     }
 }

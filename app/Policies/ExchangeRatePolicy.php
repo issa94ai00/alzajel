@@ -3,16 +3,17 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Support\Permissions;
 
 class ExchangeRatePolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->can(Permissions::RATES_VIEW);
     }
 
     public function update(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->can(Permissions::RATES_UPDATE);
     }
 }

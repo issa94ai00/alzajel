@@ -14,6 +14,7 @@ class CurrencyResource extends JsonResource
             'code' => $this->code,
             'name' => $this->name,
             'symbol' => $this->symbol,
+            'tag' => $this->tag,
             'is_base' => $this->is_base,
             'is_active' => $this->is_active,
             'exchange_rate' => $this->whenLoaded('exchangeRate', fn () => $this->exchangeRate ? new ExchangeRateResource($this->exchangeRate) : null),

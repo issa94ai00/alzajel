@@ -13,7 +13,7 @@ trait SetsUpExchangeData
     {
         $this->seed(RoleSeeder::class);
 
-        Currency::create(['code' => 'SYP', 'name' => 'ليرة سورية', 'symbol' => 'ل.س', 'is_base' => true]);
+        Currency::create(['code' => 'SYP', 'name' => 'ليرة سورية جديدة', 'symbol' => 'ل.س ج', 'is_base' => true]);
         $usd = Currency::create(['code' => 'USD', 'name' => 'دولار أمريكي', 'symbol' => '$', 'is_base' => false]);
         Currency::create(['code' => 'EUR', 'name' => 'يورو', 'symbol' => '€', 'is_base' => false]);
         Currency::create(['code' => 'SAR', 'name' => 'ريال سعودي', 'symbol' => 'ر.س', 'is_base' => false]);

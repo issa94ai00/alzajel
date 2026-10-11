@@ -2,6 +2,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CurrencyBalanceCard from '@/Components/CurrencyBalanceCard.vue';
 import NavIcon from '@/Components/NavIcon.vue';
+import NewLiraNotice from '@/Components/NewLiraNotice.vue';
+import { useFormat } from '@/composables/useFormat';
 import { Head, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -13,6 +15,9 @@ const props = defineProps({
 function formatNumber(value) {
     return new Intl.NumberFormat('ar-SY', { maximumFractionDigits: 2 }).format(Number(value));
 }
+
+// السعر له قاعدة عرض خاصة — انظر useFormat.
+const { rate: formatRate } = useFormat();
 </script>
 
 <template>
@@ -25,6 +30,8 @@ function formatNumber(value) {
 
         <div class="p-4 sm:p-6 lg:p-8">
             <div class="mx-auto max-w-7xl space-y-6">
+                <NewLiraNotice :currencies="balances" dismiss-key="dashboard" />
+
                 <div v-if="!shift" class="rounded-xl border border-amber-200 bg-amber-50 p-8 text-center dark:border-amber-800/50 dark:bg-amber-900/20">
                     <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
                         <NavIcon name="clock" class="h-6 w-6 text-amber-600 dark:text-amber-400" />
@@ -106,7 +113,7 @@ function formatNumber(value) {
                                         </td>
                                         <td class="px-5 py-3 font-medium text-slate-700 dark:text-slate-300">{{ t.currency.code }}</td>
                                         <td class="px-5 py-3 text-slate-700 dark:text-slate-300">{{ formatNumber(t.amount) }}</td>
-                                        <td class="px-5 py-3 text-slate-500 dark:text-slate-400">{{ formatNumber(t.rate) }}</td>
+                                        <td class="px-5 py-3 text-slate-500 dark:text-slate-400">{{ formatRate(t.rate) }}</td>
                                         <td class="px-5 py-3 font-semibold text-slate-800 dark:text-white">{{ formatNumber(t.total) }}</td>
                                         <td class="px-5 py-3 text-slate-500 dark:text-slate-400">{{ t.user.name }}</td>
                                     </tr>

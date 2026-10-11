@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -42,8 +44,38 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        $logger = app(ActivityLogger::class);
+
+        // الحسابات الموقوفة أو غير المفعّلة تُرفض قبل محاولة المصادقة أصلاً،
+        // حتى لا تُنشأ لها جلسة ثم تُبطَل.
+        $candidate = User::where('email', $this->string('email'))->first();
+
+        if ($candidate && ($reason = $candidate->loginBlockReason())) {
+            RateLimiter::hit($this->throttleKey());
+
+            $logger->log(
+                ActivityLogger::AUTH_BLOCKED,
+                "محاولة دخول مرفوضة للحساب {$candidate->email} — الحالة: {$candidate->statusLabel()}",
+                $candidate,
+                ['status' => $candidate->status],
+                $candidate,
+            );
+
+            throw ValidationException::withMessages([
+                'email' => $reason,
+            ]);
+        }
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
+
+            $logger->log(
+                ActivityLogger::AUTH_FAILED,
+                'محاولة دخول فاشلة بالبريد '.$this->string('email'),
+                $candidate,
+                ['email' => (string) $this->string('email')],
+                $candidate,
+            );
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
@@ -51,6 +83,21 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        $user = Auth::user();
+
+        $user->forceFill([
+            'last_login_at' => now(),
+            'last_login_ip' => $this->ip(),
+        ])->save();
+
+        $logger->log(
+            ActivityLogger::AUTH_LOGIN,
+            "تسجيل دخول للمستخدم {$user->name}",
+            $user,
+            [],
+            $user,
+        );
     }
 
     /**

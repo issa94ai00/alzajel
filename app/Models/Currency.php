@@ -12,6 +12,7 @@ class Currency extends Model
         'code',
         'name',
         'symbol',
+        'tag',
         'is_base',
         'is_active',
     ];

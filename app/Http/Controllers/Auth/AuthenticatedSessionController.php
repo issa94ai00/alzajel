@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\ActivityLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,8 +40,12 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request, ActivityLogger $activity): RedirectResponse
     {
+        if ($user = $request->user()) {
+            $activity->log(ActivityLogger::AUTH_LOGOUT, "تسجيل خروج للمستخدم {$user->name}", $user, [], $user);
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

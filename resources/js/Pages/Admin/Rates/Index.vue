@@ -1,18 +1,44 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
+import NewLiraNotice from '@/Components/NewLiraNotice.vue';
+import { useFormat } from '@/composables/useFormat';
 import { Head, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
     currencies: { type: Array, required: true },
 });
 
+const { settings } = useFormat();
+
+/**
+ * السعر يُخزَّن بعشر خانات، فيصل إلى الحقل ذيلاً من الأصفار (13000.0000000000).
+ * هنا يُقصّ إلى عدد الخانات المضبوط في الإعدادات ليُقرأ كما يُقرأ في بقية الشاشات،
+ * مع استثناء السعر الصغير جداً — الناتج عن قلب سعر عملة قوية عند تبديل العملة
+ * الأساس — إذ يمحوه التقريب فيُحفظ صفراً لو عُرض مقصوصاً.
+ */
+function editable(value) {
+    if (value === null || value === undefined || value === '') return '';
+
+    const parsed = Number(value);
+
+    if (!Number.isFinite(parsed)) return '';
+
+    const decimals = settings().decimals ?? 2;
+
+    if (parsed !== 0 && Math.abs(parsed) < Math.pow(10, 1 - decimals)) {
+        return String(parsed);
+    }
+
+    return parsed.toFixed(decimals);
+}
+
 const forms = Object.fromEntries(
     props.currencies.map((c) => [
         c.id,
         useForm({
-            buy_rate: c.exchange_rate?.buy_rate ?? '',
-            sell_rate: c.exchange_rate?.sell_rate ?? '',
+            buy_rate: editable(c.exchange_rate?.buy_rate),
+            sell_rate: editable(c.exchange_rate?.sell_rate),
         }),
     ])
 );
@@ -32,6 +58,8 @@ function submit(currencyId) {
 
         <div class="py-8">
             <div class="mx-auto max-w-3xl space-y-4 sm:px-6 lg:px-8">
+                <NewLiraNotice dismiss-key="rates-index" />
+
                 <form
                     v-for="currency in currencies"
                     :key="currency.id"
@@ -45,8 +73,8 @@ function submit(currencyId) {
                         <input
                             v-model="forms[currency.id].buy_rate"
                             type="number"
-                            step="0.0001"
-                            min="0.0001"
+                            step="any"
+                            min="0.0000000001"
                             class="mt-1 w-32 rounded-md border-gray-300 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                         />
                         <InputError :message="forms[currency.id].errors.buy_rate" />
@@ -57,8 +85,8 @@ function submit(currencyId) {
                         <input
                             v-model="forms[currency.id].sell_rate"
                             type="number"
-                            step="0.0001"
-                            min="0.0001"
+                            step="any"
+                            min="0.0000000001"
                             class="mt-1 w-32 rounded-md border-gray-300 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                         />
                         <InputError :message="forms[currency.id].errors.sell_rate" />

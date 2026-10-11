@@ -10,6 +10,7 @@ use App\Models\Currency;
 use App\Models\Shift;
 use App\Services\ReportService;
 use App\Services\ShiftService;
+use App\Support\Permissions;
 use Illuminate\Http\Request;
 
 class ShiftController extends Controller
@@ -19,9 +20,13 @@ class ShiftController extends Controller
         private readonly ReportService $reportService,
     ) {}
 
-    public function index(): array
+    public function index(Request $request): array
     {
         $shifts = Shift::with(['openedBy', 'closedBy'])
+            ->unless(
+                $request->user()->can(Permissions::SHIFTS_VIEW_ANY),
+                fn ($q) => $q->where('opened_by', $request->user()->id)
+            )
             ->latest('opened_at')
             ->paginate(20);
 
@@ -39,7 +44,7 @@ class ShiftController extends Controller
     {
         $this->authorize('create', Shift::class);
 
-        $currentShift = $this->shiftService->getCurrentOpenShift();
+        $currentShift = $this->shiftService->getCurrentOpenShift($request->user());
 
         return [
             'currencies' => CurrencyResource::collection(
@@ -52,7 +57,7 @@ class ShiftController extends Controller
 
     public function store(StoreShiftRequest $request): ShiftResource|array
     {
-        $currentShift = $this->shiftService->getCurrentOpenShift();
+        $currentShift = $this->shiftService->getCurrentOpenShift($request->user());
 
         if ($currentShift) {
             $this->authorize('close', $currentShift);

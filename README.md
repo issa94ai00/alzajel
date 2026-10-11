@@ -7,6 +7,35 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Deployment
+
+Deploys are a manual file upload to `/var/www/bashar.damatech.sy/htdocs`. **After
+uploading, always run the deploy script** — it runs pending migrations, which an
+upload on its own does not:
+
+```bash
+cd /var/www/bashar.damatech.sy/htdocs
+sudo ./deploy.sh              # add --no-assets to skip the npm build
+```
+
+It puts the app in maintenance mode, installs dependencies, runs
+`php artisan migrate --force`, rebuilds the caches, fixes ownership, reloads
+PHP-FPM, and lifts maintenance mode.
+
+Two things to know:
+
+- Run it as `root` (or as `bashardamatechsy`). It executes `artisan` as the web
+  user so no cache file ends up owned by `root` — php-fpm runs as
+  `bashardamatechsy` and rewrites compiled Blade views at runtime, so a
+  root-owned cache file causes 500s later.
+- **If a step fails the site stays in maintenance mode (503) on purpose**, since a
+  half-applied migration should not serve traffic. Fix the reported step, then
+  `php artisan up`.
+
+Skipping migrations is what caused the outage on 2026-09-14: code using the
+`SoftDeletes` trait went live without its migration, and every authenticated
+request 500'd on a missing `users.deleted_at` column.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

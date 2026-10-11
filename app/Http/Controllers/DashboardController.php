@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ExchangeTransaction;
 use App\Services\ReportService;
 use App\Services\ShiftService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,9 +16,9 @@ class DashboardController extends Controller
         private readonly ReportService $reportService,
     ) {}
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $shift = $this->shiftService->getCurrentOpenShift();
+        $shift = $this->shiftService->getCurrentOpenShift($request->user());
 
         return Inertia::render('Dashboard', [
             'shift' => $shift,

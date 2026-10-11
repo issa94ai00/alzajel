@@ -28,9 +28,18 @@ class RoleAccessTest extends TestCase
     {
         $cashier = $this->createCashier();
 
-        $this->actingAs($cashier)->get(route('rates.index'))->assertForbidden();
         $this->actingAs($cashier)->get(route('users.index'))->assertForbidden();
         $this->actingAs($cashier)->get(route('reports.profit-loss'))->assertForbidden();
+    }
+
+    public function test_cashier_cannot_update_rates(): void
+    {
+        $cashier = $this->createCashier();
+        $usd = \App\Models\Currency::where('code', 'USD')->firstOrFail();
+
+        $this->actingAs($cashier)
+            ->put(route('rates.update', $usd), ['buy_rate' => 1, 'sell_rate' => 2])
+            ->assertForbidden();
     }
 
     public function test_admin_can_access_admin_only_routes(): void
@@ -49,5 +58,7 @@ class RoleAccessTest extends TestCase
         $this->actingAs($cashier)->get(route('dashboard'))->assertOk();
         $this->actingAs($cashier)->get(route('shifts.create'))->assertOk();
         $this->actingAs($cashier)->get(route('reports.balances'))->assertOk();
+        // اطّلاع على الأسعار مسموح للصرّاف — التعديل لا.
+        $this->actingAs($cashier)->get(route('rates.index'))->assertOk();
     }
 }

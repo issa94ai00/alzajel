@@ -28,6 +28,32 @@ class RecordTransactionTest extends TestCase
         return app(ShiftService::class)->openShift($user, [$syp->id => $sypBalance]);
     }
 
+    /**
+     * شاشة تسجيل العملية تحتاج العملة الأساس وأرصدة الوردية لتُظهر كفاية
+     * الرصيد قبل الإرسال بدل أن يكتشفها الصرّاف من رسالة رفض بعد الحفظ.
+     */
+    public function test_create_screen_exposes_base_currency_and_balances(): void
+    {
+        $cashier = $this->createCashier();
+        $shift = $this->openShiftWithSypFloat($cashier, '250000');
+        $syp = Currency::where('code', 'SYP')->firstOrFail();
+
+        $response = $this->actingAs($cashier)->get(route('transactions.create'));
+
+        $response->assertOk();
+        $response->assertInertia(
+            fn ($page) => $page
+                ->where('baseCurrency.code', 'SYP')
+                ->where('balances.'.$syp->id, '250000.0000')
+                // العملة الأساس لا تُعرض كعملة متداولة.
+                ->where('currencies', fn ($currencies) => collect($currencies)->every(
+                    fn ($currency) => $currency['code'] !== 'SYP'
+                ))
+        );
+
+        $this->assertSame($shift->id, $shift->fresh()->id);
+    }
+
     public function test_sell_transaction_updates_both_balances(): void
     {
         $cashier = $this->createCashier();
@@ -118,7 +144,7 @@ class RecordTransactionTest extends TestCase
         ]);
 
         $transaction = ExchangeTransaction::firstOrFail();
-        $this->assertSame('105.0000', (string) $transaction->rate);
+        $this->assertSame('105.0000000000', (string) $transaction->rate);
         $this->assertSame('10500.0000', (string) $transaction->total);
     }
 
@@ -137,7 +163,7 @@ class RecordTransactionTest extends TestCase
         ]);
 
         $transaction = ExchangeTransaction::firstOrFail();
-        $this->assertSame('103.0000', (string) $transaction->rate);
+        $this->assertSame('103.0000000000', (string) $transaction->rate);
         // profit = total(10300) - amount(100) * reference_buy_rate(100) = 300
         $this->assertSame('300.0000', (string) $transaction->profit);
     }
@@ -155,8 +181,8 @@ class RecordTransactionTest extends TestCase
         ]);
 
         $transaction = ExchangeTransaction::firstOrFail();
-        $this->assertSame('100.0000', (string) $transaction->reference_buy_rate);
-        $this->assertSame('105.0000', (string) $transaction->reference_sell_rate);
+        $this->assertSame('100.0000000000', (string) $transaction->reference_buy_rate);
+        $this->assertSame('105.0000000000', (string) $transaction->reference_sell_rate);
     }
 
     public function test_cannot_record_transaction_without_open_shift(): void

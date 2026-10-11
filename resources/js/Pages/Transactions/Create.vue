@@ -6,6 +6,8 @@ import { Head } from '@inertiajs/vue3';
 defineProps({
     shift: { type: Object, required: true },
     currencies: { type: Array, required: true },
+    baseCurrency: { type: Object, default: null },
+    balances: { type: Object, default: () => ({}) },
 });
 </script>
 
@@ -19,7 +21,7 @@ defineProps({
 
         <div class="py-8">
             <div class="mx-auto max-w-xl sm:px-6 lg:px-8">
-                <TransactionForm :currencies="currencies" />
+                <TransactionForm :currencies="currencies" :base-currency="baseCurrency" :balances="balances" />
             </div>
         </div>
     </AuthenticatedLayout>

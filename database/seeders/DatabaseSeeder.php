@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             CurrencySeeder::class,
             ExchangeRateSeeder::class,
+            SystemDefaultsSeeder::class,
         ]);
     }
 }
