@@ -15,7 +15,7 @@ class ReportService
             ->with('currency')
             ->get()
             ->map(fn ($account) => [
-                'currency' => $account->currency->only(['id', 'code', 'name', 'symbol']),
+                'currency' => $account->currency->only(['id', 'code', 'name', 'symbol', 'is_base']),
                 'opening_balance' => $account->opening_balance,
                 'current_balance' => $account->current_balance,
             ]);

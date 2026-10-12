@@ -72,6 +72,17 @@ defineProps({
         <template v-else-if="name === 'chevron-down'">
             <polyline points="6,8 12,14 18,8" />
         </template>
+        <template v-else-if="name === 'chevron-right'">
+            <polyline points="9,18 15,12 9,6" />
+        </template>
+        <template v-else-if="name === 'chevron-left'">
+            <polyline points="15,18 9,12 15,6" />
+        </template>
+        <template v-else-if="name === 'collapse'">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <line x1="9" y1="4" x2="9" y2="20" />
+            <polyline points="15,9 13,12 15,15" />
+        </template>
         <template v-else-if="name === 'user'">
             <circle cx="12" cy="8" r="3.2" />
             <path d="M5 19c0-3.5 3-6 7-6s7 2.5 7 6" />

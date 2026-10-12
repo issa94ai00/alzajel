@@ -41,6 +41,9 @@ class ShiftController extends Controller
             $trashed = '';
         }
 
+        $status = $request->string('status')->toString();
+        $search = $request->string('search')->toString();
+
         $shifts = Shift::with(['openedBy:id,name', 'closedBy:id,name', 'deletedBy:id,name'])
             ->withCount([
                 'exchangeTransactions',
@@ -49,6 +52,13 @@ class ShiftController extends Controller
                 'exchangeTransactions as all_transactions_count' => fn ($q) => $q->withTrashed(),
             ])
             ->trashedFilter($trashed ?: null)
+            ->when($status, fn ($q) => $q->where('status', $status))
+            ->when($search, function ($q, $search) {
+                $q->where(function ($inner) use ($search) {
+                    $inner->where('business_date', 'like', "%{$search}%")
+                        ->orWhereHas('openedBy', fn ($u) => $u->where('name', 'like', "%{$search}%"));
+                });
+            })
             // بدون صلاحية الإشراف يرى المستخدم ورديّاته فقط.
             ->unless($canSeeAll, fn ($q) => $q->where('opened_by', $user->id))
             ->latest('opened_at')
@@ -73,7 +83,11 @@ class ShiftController extends Controller
             'myOpenShift' => $this->shiftService->getCurrentOpenShift($user)?->only(['id', 'business_date']),
             'canSeeTrashed' => $canSeeTrashed,
             'trashedCount' => $canSeeTrashed ? Shift::onlyTrashed()->count() : 0,
-            'filters' => ['trashed' => $trashed],
+            'filters' => [
+                'trashed' => $trashed,
+                'status' => $status,
+                'search' => $search,
+            ],
         ]);
     }
 

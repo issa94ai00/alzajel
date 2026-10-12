@@ -19,24 +19,24 @@ const { isDark, toggle: toggleDarkMode } = useDarkMode();
 const page = usePage();
 const isAdmin = computed(() => page.props.auth.isAdmin);
 const user = computed(() => page.props.auth.user);
+const currentShift = computed(() => page.props.currentShift);
+const companyName = computed(() => page.props.settings?.company_name || 'DamaTech');
 const flashSuccess = computed(() => page.props.flash?.success);
 const flashError = computed(() => page.props.flash?.error);
 
 const userInitial = computed(() => (user.value?.name?.trim()?.charAt(0) ?? '?').toUpperCase());
 
 /*
- * روابط التشغيل اليومي أولاً، ثم روابط الإدارة تحت عنوانها. الفصل ليس تزييناً:
- * القائمة تطول إلى تسعة روابط عند المدير، فتضيع الورديات بين الإعدادات والعملات
- * ما لم يفصل بينها عنوان.
+ * مجموعات التنقل: التشغيل اليومي أولاً، ثم الإدارة والنظام.
  */
 const navGroups = computed(() => {
     const groups = [
         {
             key: 'main',
-            label: null,
+            label: 'العمليات اليومية',
             links: [
                 { href: route('dashboard'), label: 'الرئيسية', icon: 'home', current: 'dashboard' },
-                { href: route('transactions.create'), label: 'عملية جديدة', icon: 'plus-circle', current: 'transactions.create' },
+                { href: route('transactions.create'), label: 'عملية جديدة', icon: 'plus-circle', current: 'transactions.create', badge: 'جديد' },
                 { href: route('transactions.index'), label: 'سجل العمليات', icon: 'receipt', current: 'transactions.index' },
                 { href: route('shifts.index'), label: 'الورديات', icon: 'clock', current: 'shifts.index' },
                 { href: route('reports.index'), label: 'التقارير', icon: 'chart-bar', current: 'reports.*' },
@@ -47,7 +47,7 @@ const navGroups = computed(() => {
     if (isAdmin.value) {
         groups.push({
             key: 'admin',
-            label: 'الإدارة',
+            label: 'الإدارة والنظام',
             links: [
                 { href: route('rates.index'), label: 'أسعار الصرف', icon: 'currency', current: 'rates.index' },
                 { href: route('currencies.index'), label: 'العملات', icon: 'coins', current: 'currencies.*' },
@@ -60,10 +60,23 @@ const navGroups = computed(() => {
     return groups;
 });
 
+// حالة الدرج على الجوال
 const sidebarOpen = ref(false);
 const sidebarEl = ref(null);
 const menuButton = ref(null);
 const closeButton = ref(null);
+
+// حالة تصغير الشريط الجانبي على أجهزة سطح المكتب (Rail Mode)
+const sidebarCollapsed = ref(
+    typeof window !== 'undefined' ? localStorage.getItem('sidebar_collapsed') === 'true' : false,
+);
+
+function toggleSidebarCollapse() {
+    sidebarCollapsed.value = !sidebarCollapsed.value;
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebar_collapsed', String(sidebarCollapsed.value));
+    }
+}
 
 const desktop = typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)') : null;
 
@@ -71,11 +84,6 @@ function closeSidebar() {
     sidebarOpen.value = false;
 }
 
-/*
- * على الجوال الدرج نافذة حوارية فعلياً: يغطي الشاشة ويحجب ما خلفه. فيلزمه إذاً
- * ما يلزم النافذة — مخرجٌ بالمفتاح Escape، وتركيزٌ محبوس داخله لا يتسلل إلى
- * روابط مخفية خلف الحجاب، ثم يعود إلى الزرّ الذي فتحه عند الإغلاق.
- */
 function focusables() {
     return Array.from(
         sidebarEl.value?.querySelectorAll('a[href], button:not([disabled])') ?? [],
@@ -83,19 +91,24 @@ function focusables() {
 }
 
 function onKeydown(event) {
-    if (! sidebarOpen.value) return;
+    // اختصار لوحة المفاتيح لتصغير/توسيع الشريط الجانبي على سطح المكتب
+    if (event.ctrlKey && (event.key === 'b' || event.key === 'B')) {
+        event.preventDefault();
+        toggleSidebarCollapse();
+        return;
+    }
+
+    if (!sidebarOpen.value) return;
 
     if (event.key === 'Escape') {
         closeSidebar();
-
         return;
     }
 
     if (event.key !== 'Tab') return;
 
     const items = focusables();
-
-    if (! items.length) return;
+    if (!items.length) return;
 
     const first = items[0];
     const last = items[items.length - 1];
@@ -103,22 +116,19 @@ function onKeydown(event) {
     if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
         last.focus();
-    } else if (! event.shiftKey && document.activeElement === last) {
+    } else if (!event.shiftKey && document.activeElement === last) {
         event.preventDefault();
         first.focus();
     }
 }
 
-/* الشاشة تتسع إلى مقاس سطح المكتب فيصير الدرج شريطاً ثابتاً — وحبس التركيز فيه عندئذٍ خطأ. */
 function onBreakpointChange(event) {
     if (event.matches) closeSidebar();
 }
 
 watch(sidebarOpen, async (open) => {
     await nextTick();
-
     const target = open ? closeButton.value : menuButton.value;
-
     if (target?.offsetParent !== null) target?.focus();
 });
 
@@ -135,70 +145,146 @@ onUnmounted(() => {
 
 <template>
     <div class="flex h-screen overflow-hidden bg-slate-50 supports-[height:100dvh]:h-dvh dark:bg-slate-950">
-        <!-- Mobile backdrop -->
+        <!-- غطاء الخلفية على الشاشات الصغيرة (Mobile Backdrop) -->
         <Transition
-            enter-active-class="transition-opacity duration-200 ease-out"
+            enter-active-class="transition-opacity duration-300 ease-out"
             enter-from-class="opacity-0"
             leave-active-class="transition-opacity duration-200 ease-in"
             leave-to-class="opacity-0"
         >
             <div
                 v-show="sidebarOpen"
-                class="fixed inset-0 z-30 bg-slate-900/60 backdrop-blur-sm lg:hidden"
+                class="fixed inset-0 z-30 bg-slate-950/70 backdrop-blur-sm lg:hidden"
                 aria-hidden="true"
                 @click="closeSidebar"
             ></div>
         </Transition>
 
         <!--
-            الصفحة كلها rtl (dir في app.blade.php)، فالدرج يخرج من حافة البداية
-            يميناً و translate-x-full هو ما يزيحه خارج الشاشة.
+            القائمة الجانبية (Sidebar):
+            - على الجوال: تخرج كدرج سلس من الحافة اليمنى (dir="rtl")
+            - على سطح المكتب: شريط ثابت قابل للتصغير (Rail mode: w-20 مقابل Expanded: w-72)
         -->
         <aside
             id="app-sidebar"
             ref="sidebarEl"
             aria-label="القائمة الجانبية"
-            class="fixed inset-y-0 end-0 z-40 flex w-72 shrink-0 transform flex-col bg-slate-900 shadow-2xl transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 lg:shadow-none"
-            :class="sidebarOpen ? 'translate-x-0' : 'translate-x-full'"
+            class="fixed inset-y-0 start-0 z-40 flex shrink-0 flex-col bg-slate-900 border-e border-white/10 shadow-2xl transition-all duration-300 ease-in-out dark:bg-slate-950 dark:border-slate-800 lg:static lg:shadow-none"
+            :class="[
+                sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0',
+                sidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
+                'w-72',
+            ]"
         >
-            <div class="flex h-16 shrink-0 items-center gap-3 border-b border-white/10 px-5">
+            <!-- رأس القائمة: الشعار وزر التصغير/الإغلاق -->
+            <div
+                class="flex h-16 shrink-0 items-center border-b border-white/10 px-4 transition-all duration-300 dark:border-slate-800"
+                :class="sidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-between'"
+            >
+                <!-- الشعار واسم النظام -->
                 <Link
                     :href="route('dashboard')"
-                    class="flex min-w-0 items-center gap-3 rounded-lg transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                    class="group flex min-w-0 items-center gap-3 rounded-xl p-1 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                    :title="companyName"
                 >
-                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-500/20">
-                        <NavIcon name="currency" class="h-5 w-5 text-indigo-400" />
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 shadow-md shadow-indigo-600/30 transition-transform group-hover:scale-105">
+                        <NavIcon name="currency" class="h-5 w-5 text-white" />
                     </span>
-                    <span class="min-w-0">
-                        <span class="block truncate text-sm font-bold leading-tight text-white">DamaTech</span>
-                        <span class="block truncate text-xs leading-tight text-slate-400">نظام إدارة الصرافة</span>
+
+                    <span v-if="!sidebarCollapsed" class="min-w-0 transition-opacity duration-200">
+                        <span class="block truncate text-base font-black leading-tight tracking-tight text-white">
+                            {{ companyName }}
+                        </span>
+                        <span class="block truncate text-[11px] font-medium leading-tight text-slate-400">
+                            نظام إدارة الصرافة
+                        </span>
                     </span>
                 </Link>
 
-                <button
-                    ref="closeButton"
-                    type="button"
-                    class="ms-auto shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 lg:hidden"
-                    aria-label="إغلاق القائمة"
-                    @click="closeSidebar"
-                >
-                    <NavIcon name="close" class="h-5 w-5" />
-                </button>
+                <!-- أزرار الإجراء: إغلاق للجوال وتصغير لسطح المكتب -->
+                <div class="flex items-center gap-1">
+                    <!-- زر تصغير/توسيع الشريط لسطح المكتب -->
+                    <button
+                        type="button"
+                        class="hidden rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 lg:inline-flex"
+                        :title="sidebarCollapsed ? 'توسيع القائمة الجانبية (Ctrl+B)' : 'تصغير القائمة الجانبية (Ctrl+B)'"
+                        aria-label="تبديل حجم القائمة الجانبية"
+                        @click="toggleSidebarCollapse"
+                    >
+                        <NavIcon name="collapse" class="h-4 w-4 transition-transform duration-200" :class="sidebarCollapsed ? 'rotate-180' : ''" />
+                    </button>
+
+                    <!-- زر إغلاق الدرج على الجوال -->
+                    <button
+                        ref="closeButton"
+                        type="button"
+                        class="rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 lg:hidden"
+                        aria-label="إغلاق القائمة"
+                        @click="closeSidebar"
+                    >
+                        <NavIcon name="close" class="h-5 w-5" />
+                    </button>
+                </div>
             </div>
 
-            <nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="التنقل الرئيسي">
+            <!-- مصغر حالة الوردية الحالية داخل القائمة -->
+            <div
+                v-if="!sidebarCollapsed"
+                class="px-3 pt-3.5 pb-1 transition-all"
+            >
+                <Link
+                    v-if="currentShift"
+                    :href="route('shifts.show', currentShift.id)"
+                    class="group flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-2.5 text-xs text-emerald-300 transition hover:bg-emerald-900/40 hover:border-emerald-500/50"
+                    title="الوردية الحالية مفتوحة — انقر لعرض التفاصيل"
+                >
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="relative flex h-2.5 w-2.5 shrink-0">
+                            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                        </span>
+                        <div class="min-w-0">
+                            <span class="block truncate font-bold">وردية مفتوحة</span>
+                            <span class="block text-[10px] text-emerald-400/80 tabular-nums">{{ currentShift.business_date }}</span>
+                        </div>
+                    </div>
+                    <NavIcon name="chevron-left" class="h-3.5 w-3.5 shrink-0 text-emerald-400 opacity-60 transition-transform group-hover:-translate-x-0.5" />
+                </Link>
+
+                <Link
+                    v-else
+                    :href="route('shifts.create')"
+                    class="flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-950/40 p-2.5 text-xs text-amber-300 transition hover:bg-amber-900/40"
+                    title="لا توجد وردية مفتوحة — انقر لفتح وردية"
+                >
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="h-2 w-2 shrink-0 rounded-full bg-amber-400"></span>
+                        <span class="truncate font-bold">لا توجد وردية مفتوحة</span>
+                    </div>
+                    <span class="text-[10px] font-bold underline shrink-0">فتح</span>
+                </Link>
+            </div>
+
+            <!-- روابط التنقل الرئيسية -->
+            <nav class="flex-1 overflow-y-auto px-2.5 py-3 space-y-4" aria-label="التنقل الرئيسي">
                 <div
                     v-for="group in navGroups"
                     :key="group.key"
                     class="space-y-1"
-                    :class="group.label ? 'mt-4 border-t border-white/5 pt-4' : ''"
                 >
+                    <!-- عنوان المجموعة (يُخفى في الوضع المنكمش) -->
                     <p
-                        v-if="group.label"
-                        class="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500"
+                        v-if="!sidebarCollapsed && group.label"
+                        class="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500"
                     >
                         {{ group.label }}
                     </p>
+
+                    <!-- خط فاصل لطيف في الوضع المنكمش -->
+                    <div
+                        v-else-if="sidebarCollapsed && group.label"
+                        class="mx-auto my-2 w-8 border-t border-white/10 dark:border-slate-800"
+                    />
 
                     <SidebarNavLink
                         v-for="link in group.links"
@@ -206,6 +292,9 @@ onUnmounted(() => {
                         :href="link.href"
                         :icon="link.icon"
                         :active="route().current(link.current)"
+                        :collapsed="sidebarCollapsed"
+                        :title="link.label"
+                        :badge="link.badge"
                         @click="closeSidebar"
                     >
                         {{ link.label }}
@@ -213,58 +302,93 @@ onUnmounted(() => {
                 </div>
             </nav>
 
-            <div class="shrink-0 border-t border-white/10 p-3">
+            <!-- أسفل القائمة الجانبية: بطاقة المستخدم وقائمة الحساب -->
+            <div class="shrink-0 border-t border-white/10 p-2.5 transition-all dark:border-slate-800">
                 <Dropdown align="left" width="48" drop="up">
                     <template #trigger>
                         <button
                             type="button"
-                            class="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-start transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                            class="group flex w-full items-center gap-3 rounded-xl p-2 text-start transition hover:bg-white/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                            :class="sidebarCollapsed ? 'justify-center' : ''"
+                            :title="user?.name"
                             aria-label="قائمة الحساب"
                         >
-                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-sm font-bold text-white">
+                            <!-- الصورة الرمزية للمستخدم -->
+                            <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-sm font-black text-white shadow-sm shadow-indigo-600/30">
                                 {{ userInitial }}
                             </span>
-                            <span class="min-w-0 flex-1">
-                                <span class="block truncate text-sm font-semibold text-white">{{ user?.name }}</span>
-                                <span class="block truncate text-xs text-slate-400">{{ user?.email }}</span>
+
+                            <span v-if="!sidebarCollapsed" class="min-w-0 flex-1">
+                                <span class="block truncate text-sm font-bold text-white group-hover:text-indigo-200 transition-colors">
+                                    {{ user?.name }}
+                                </span>
+                                <span class="block truncate text-[11px] text-slate-400">
+                                    {{ isAdmin ? 'مدير النظام' : 'صراف' }}
+                                </span>
                             </span>
-                            <NavIcon name="chevron-down" class="h-4 w-4 shrink-0 text-slate-400" />
+
+                            <NavIcon v-if="!sidebarCollapsed" name="chevron-down" class="h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:text-white" />
                         </button>
                     </template>
 
                     <template #content>
-                        <DropdownLink :href="route('profile.edit')">الملف الشخصي</DropdownLink>
-                        <DropdownLink :href="route('logout')" method="post" as="button">تسجيل الخروج</DropdownLink>
+                        <div class="px-4 py-2 border-b border-gray-100 dark:border-slate-700">
+                            <p class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ user?.name }}</p>
+                            <p class="text-[11px] text-gray-500 dark:text-slate-400 truncate">{{ user?.email }}</p>
+                        </div>
+                        <DropdownLink :href="route('profile.edit')">
+                            الملف الشخصي
+                        </DropdownLink>
+                        <DropdownLink :href="route('logout')" method="post" as="button">
+                            تسجيل الخروج
+                        </DropdownLink>
                     </template>
                 </Dropdown>
             </div>
         </aside>
 
-        <!-- Main column -->
+        <!-- العمود الرئيسي للمحتوى -->
         <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-            <header class="flex h-16 shrink-0 items-center gap-4 border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 sm:px-6 lg:px-8">
+            <!-- شريط الرأس العلوي -->
+            <header class="flex min-h-[4rem] shrink-0 items-center gap-3 border-b border-slate-200/80 bg-white/90 px-3.5 py-2.5 backdrop-blur-md transition-colors dark:border-slate-800/80 dark:bg-slate-900/90 sm:px-6 lg:px-8">
+                <!-- زر فتح القائمة على الهواتف والأجهزة اللوحية -->
                 <button
                     ref="menuButton"
                     type="button"
-                    class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
-                    aria-label="فتح القائمة"
+                    class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-600 shadow-xs transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700/70 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white lg:hidden"
+                    aria-label="فتح القائمة الجانبية"
                     aria-controls="app-sidebar"
                     :aria-expanded="sidebarOpen"
                     @click="sidebarOpen = true"
                 >
-                    <NavIcon name="menu" class="h-6 w-6" />
+                    <NavIcon name="menu" class="h-5 w-5" />
                 </button>
+
+                <!-- زر تبديل حجم القائمة الجانبية على سطح المكتب بجوار العنوان -->
+                <button
+                    type="button"
+                    class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/60 bg-white/80 text-slate-500 shadow-xs transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700/60 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white lg:inline-flex"
+                    :title="sidebarCollapsed ? 'توسيع القائمة (Ctrl+B)' : 'تصغير القائمة (Ctrl+B)'"
+                    @click="toggleSidebarCollapse"
+                >
+                    <NavIcon name="collapse" class="h-4 w-4 transition-transform duration-200" :class="sidebarCollapsed ? 'rotate-180' : ''" />
+                </button>
+
+                <!-- عنوان أو محتوى الرأس المخصص للصفحة -->
                 <div v-if="$slots.header" class="min-w-0 flex-1">
                     <slot name="header" />
                 </div>
+                <div v-else class="flex-1"></div>
+
+                <!-- زر تبديل الوضع الداكن/الفاتح -->
                 <button
                     type="button"
-                    class="ms-auto rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:text-slate-400 dark:hover:bg-slate-800"
-                    :title="isDark ? 'الوضع الفاتح' : 'الوضع الداكن'"
-                    :aria-label="isDark ? 'الوضع الفاتح' : 'الوضع الداكن'"
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-500 shadow-xs transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700/70 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
+                    :title="isDark ? 'التحويل للوضع الفاتح' : 'التحويل للوضع الداكن'"
+                    :aria-label="isDark ? 'التحويل للوضع الفاتح' : 'التحويل للوضع الداكن'"
                     @click="toggleDarkMode"
                 >
-                    <NavIcon :name="isDark ? 'sun' : 'moon'" class="h-5 w-5" />
+                    <NavIcon :name="isDark ? 'sun' : 'moon'" class="h-4.5 w-4.5 transition-transform duration-200 hover:rotate-12" />
                 </button>
             </header>
 
@@ -272,13 +396,26 @@ onUnmounted(() => {
 
             <ReceiptPrompt />
 
-            <div v-if="flashSuccess" class="mx-4 mt-4 rounded-lg bg-emerald-50 px-4 py-2.5 text-sm font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 sm:mx-6 lg:mx-8">
-                {{ flashSuccess }}
-            </div>
-            <div v-if="flashError" class="mx-4 mt-4 rounded-lg bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-800 dark:bg-rose-900/30 dark:text-rose-300 sm:mx-6 lg:mx-8">
-                {{ flashError }}
+            <!-- رسائل النجاح والخطأ العامة -->
+            <div
+                v-if="flashSuccess"
+                class="mx-4 mt-4 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300 sm:mx-6 lg:mx-8 shadow-sm"
+                role="status"
+            >
+                <NavIcon name="check" class="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <span>{{ flashSuccess }}</span>
             </div>
 
+            <div
+                v-if="flashError"
+                class="mx-4 mt-4 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-800 dark:border-rose-800/60 dark:bg-rose-950/40 dark:text-rose-300 sm:mx-6 lg:mx-8 shadow-sm"
+                role="alert"
+            >
+                <NavIcon name="close" class="h-5 w-5 shrink-0 text-rose-600 dark:text-rose-400" />
+                <span>{{ flashError }}</span>
+            </div>
+
+            <!-- الحاوية الرئيسية للمحتوى -->
             <main class="flex-1 overflow-y-auto">
                 <slot />
             </main>

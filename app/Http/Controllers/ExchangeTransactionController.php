@@ -158,6 +158,7 @@ class ExchangeTransactionController extends Controller
             'balances' => $balances,
             'recentTransactions' => $recentTransactions,
             'transactionsCount' => $shift->exchangeTransactions()->count(),
+            'canDeposit' => $request->user()->can('recordMovement', $shift),
         ]);
     }
 
