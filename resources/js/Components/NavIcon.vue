@@ -107,5 +107,59 @@ defineProps({
             <path d="M10.6 5.7A10.6 10.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a15 15 0 0 1-3 3.7M6.6 6.7A15.6 15.6 0 0 0 2.5 12S6 18.5 12 18.5a9.9 9.9 0 0 0 3.3-.6" />
             <path d="M9.9 9.9a2.6 2.6 0 0 0 3.7 3.7" />
         </template>
+
+        <template v-else-if="name === 'grid'">
+            <rect x="4" y="4" width="6" height="6" rx="1" />
+            <rect x="14" y="4" width="6" height="6" rx="1" />
+            <rect x="4" y="14" width="6" height="6" rx="1" />
+            <rect x="14" y="14" width="6" height="6" rx="1" />
+        </template>
+        <template v-else-if="name === 'sidebar'">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <line x1="9" y1="4" x2="9" y2="20" />
+        </template>
+        <template v-else-if="name === 'layout-grid'">
+            <circle cx="6" cy="6" r="1.5" />
+            <circle cx="18" cy="6" r="1.5" />
+            <circle cx="6" cy="18" r="1.5" />
+            <circle cx="18" cy="18" r="1.5" />
+            <circle cx="12" cy="6" r="1.5" />
+            <circle cx="12" cy="18" r="1.5" />
+        </template>
+        <template v-else-if="name === 'wallet'">
+            <path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" />
+            <path d="M16 12h5v4h-5a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2z" />
+            <circle cx="18" cy="14" r="0.8" fill="currentColor" />
+        </template>
+        <template v-else-if="name === 'trending-up'">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+            <polyline points="17 6 23 6 23 12" />
+        </template>
+        <template v-else-if="name === 'trending-down'">
+            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+            <polyline points="17 18 23 18 23 12" />
+        </template>
+        <template v-else-if="name === 'arrow-up-right'">
+            <line x1="7" y1="17" x2="17" y2="7" />
+            <polyline points="7 7 17 7 17 17" />
+        </template>
+        <template v-else-if="name === 'arrow-down-left'">
+            <line x1="17" y1="7" x2="7" y2="17" />
+            <polyline points="17 17 7 17 7 7" />
+        </template>
+        <template v-else-if="name === 'printer'">
+            <polyline points="6 9 6 2 18 2 18 9" />
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+            <rect x="6" y="14" width="12" height="8" />
+        </template>
+        <template v-else-if="name === 'filter'">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+        </template>
+        <template v-else-if="name === 'zap'">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </template>
+        <template v-else-if="name === 'refresh'">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+        </template>
     </svg>
 </template>

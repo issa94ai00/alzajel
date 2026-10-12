@@ -12,6 +12,14 @@ defineEmits(['close']);
 
 const shortcuts = [
     {
+        category: 'التنقل وعرض الواجهة',
+        items: [
+            { keys: ['Alt', 'I'], description: 'التبديل بين وضع الأيقونات ووضع القائمة الجانبية' },
+            { keys: ['Alt', 'G'], description: 'فتح لوحة الأيقونات الشاملة للتنقل السريع' },
+            { keys: ['Ctrl', 'B'], description: 'تصغير أو توسيع القائمة الجانبية' },
+        ],
+    },
+    {
         category: 'نوع العملية',
         items: [
             { keys: ['Alt', '1'], altKeys: ['F1'], description: 'تحديد اتجاه العملية: بيع' },

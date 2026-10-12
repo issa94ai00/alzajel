@@ -160,6 +160,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('permission:'.Permissions::RATES_VIEW)
         ->name('rates.index');
 
+    Route::post('/rates/sp-today/refresh', [ExchangeRateController::class, 'refreshSpToday'])
+        ->middleware('permission:'.Permissions::RATES_VIEW)
+        ->name('rates.sptoday.refresh');
+
+    Route::post('/rates/sync-all', [ExchangeRateController::class, 'syncAll'])
+        ->middleware('permission:'.Permissions::RATES_UPDATE)
+        ->name('rates.sync-all');
+
     Route::put('/rates/{currency}', [ExchangeRateController::class, 'update'])
         ->middleware('permission:'.Permissions::RATES_UPDATE)
         ->name('rates.update');
@@ -167,6 +175,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('permission:'.Permissions::CURRENCIES_MANAGE)->group(function () {
         Route::resource('currencies', CurrencyController::class)->except(['show', 'destroy']);
         Route::post('/currencies/{currency}/base', [CurrencyController::class, 'makeBase'])->name('currencies.base');
+        Route::post('/currencies/{currency}/toggle', [CurrencyController::class, 'toggleStatus'])->name('currencies.toggle');
+        Route::post('/currencies/import-sp-today', [CurrencyController::class, 'importFromSpToday'])->name('currencies.import-sp-today');
+        Route::post('/currencies/batch-status', [CurrencyController::class, 'batchStatus'])->name('currencies.batch-status');
     });
 });
 

@@ -12,11 +12,12 @@ import { computed, nextTick, ref, watch } from 'vue';
  */
 const props = defineProps({
     show: { type: Boolean, default: false },
+    maxWidth: { type: String, default: 'lg' },
     title: { type: String, required: true },
     message: { type: String, default: '' },
     confirmLabel: { type: String, default: 'تأكيد' },
     cancelLabel: { type: String, default: 'إلغاء' },
-    tone: { type: String, default: 'danger' }, // danger | warning | primary
+    tone: { type: String, default: 'danger' }, // danger | warning | primary | teal | emerald
     processing: { type: Boolean, default: false },
     // تحذير يظهر أسفل الملخّص — لِما لا رجعة فيه.
     irreversible: { type: Boolean, default: false },
@@ -50,6 +51,14 @@ const TONES = {
         ring: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400',
         button: 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
     },
+    teal: {
+        ring: 'bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400',
+        button: 'bg-teal-600 hover:bg-teal-700 focus:ring-teal-500',
+    },
+    emerald: {
+        ring: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
+        button: 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500',
+    },
 };
 
 const tone = computed(() => TONES[props.tone] ?? TONES.danger);
@@ -69,7 +78,8 @@ watch(
                 return;
             }
 
-            const target = props.tone === 'primary' ? confirmButton.value : cancelButton.value;
+            const isSafeTone = props.tone === 'primary' || props.tone === 'teal' || props.tone === 'emerald';
+            const target = isSafeTone ? confirmButton.value : cancelButton.value;
 
             target?.focus();
         });
@@ -84,17 +94,19 @@ function cancel() {
 </script>
 
 <template>
-    <Modal :show="show" max-width="lg" :closeable="!processing" @close="cancel">
+    <Modal :show="show" :max-width="maxWidth" :closeable="!processing" @close="cancel">
         <div class="p-6">
             <div class="flex items-start gap-4">
                 <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full" :class="tone.ring">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                        />
-                    </svg>
+                    <slot name="icon">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                            />
+                        </svg>
+                    </slot>
                 </div>
 
                 <div class="min-w-0 flex-1">

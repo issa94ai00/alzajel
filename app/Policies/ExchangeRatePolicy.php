@@ -12,6 +12,11 @@ class ExchangeRatePolicy
         return $user->can(Permissions::RATES_VIEW);
     }
 
+    public function create(User $user): bool
+    {
+        return $user->can(Permissions::RATES_UPDATE);
+    }
+
     public function update(User $user): bool
     {
         return $user->can(Permissions::RATES_UPDATE);

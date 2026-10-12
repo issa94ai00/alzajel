@@ -3,6 +3,8 @@ import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavIcon from '@/Components/NavIcon.vue';
+import IconBar from '@/Components/IconBar.vue';
+import IconNavigatorModal from '@/Components/IconNavigatorModal.vue';
 import SidebarNavLink from '@/Components/SidebarNavLink.vue';
 import ShiftStatusBanner from '@/Components/ShiftStatusBanner.vue';
 import ReceiptPrompt from '@/Components/ReceiptPrompt.vue';
@@ -62,20 +64,50 @@ const navGroups = computed(() => {
 
 // حالة الدرج على الجوال
 const sidebarOpen = ref(false);
-const sidebarEl = ref(null);
-const menuButton = ref(null);
-const closeButton = ref(null);
 
 // حالة تصغير الشريط الجانبي على أجهزة سطح المكتب (Rail Mode)
 const sidebarCollapsed = ref(
-    typeof window !== 'undefined' ? localStorage.getItem('sidebar_collapsed') === 'true' : false,
+    typeof window !== 'undefined'
+        ? (localStorage.getItem('sidebar_collapsed') === 'true' || localStorage.getItem('sidebar-collapsed') === 'true')
+        : false,
 );
+
+// وضع الأيقونات (Icon Mode)
+const iconMode = ref(
+    typeof window !== 'undefined'
+        ? (localStorage.getItem('nav-mode') === 'icons' || localStorage.getItem('nav_mode') === 'icons')
+        : false,
+);
+
+// حالة نافذة شبكة الأيقونات السريعة (Icon Grid Modal)
+const iconGridOpen = ref(false);
+
+const sidebarEl = ref(null);
+const menuButton = ref(null);
+const closeButton = ref(null);
 
 function toggleSidebarCollapse() {
     sidebarCollapsed.value = !sidebarCollapsed.value;
     if (typeof window !== 'undefined') {
         localStorage.setItem('sidebar_collapsed', String(sidebarCollapsed.value));
     }
+}
+
+function toggleNavMode() {
+    iconMode.value = !iconMode.value;
+    if (typeof window !== 'undefined') {
+        const mode = iconMode.value ? 'icons' : 'sidebar';
+        localStorage.setItem('nav-mode', mode);
+        localStorage.setItem('nav_mode', mode);
+    }
+}
+
+function openIconGrid() {
+    iconGridOpen.value = true;
+}
+
+function closeIconGrid() {
+    iconGridOpen.value = false;
 }
 
 const desktop = typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)') : null;
@@ -91,8 +123,22 @@ function focusables() {
 }
 
 function onKeydown(event) {
+    // اختصار تبديل وضع الأيقونات / القائمة الجانبية (Alt + I أو Alt + ه)
+    if (event.altKey && (event.key === 'i' || event.key === 'I' || event.key === 'ه')) {
+        event.preventDefault();
+        toggleNavMode();
+        return;
+    }
+
+    // اختصار فتح شبكة الأيقونات الشاملة (Alt + G أو Alt + ل)
+    if (event.altKey && (event.key === 'g' || event.key === 'G' || event.key === 'ل')) {
+        event.preventDefault();
+        iconGridOpen.value = !iconGridOpen.value;
+        return;
+    }
+
     // اختصار لوحة المفاتيح لتصغير/توسيع الشريط الجانبي على سطح المكتب
-    if (event.ctrlKey && (event.key === 'b' || event.key === 'B')) {
+    if (event.ctrlKey && (event.key === 'b' || event.key === 'B' || event.key === 'لا')) {
         event.preventDefault();
         toggleSidebarCollapse();
         return;
@@ -160,12 +206,64 @@ onUnmounted(() => {
             ></div>
         </Transition>
 
-        <!--
-            القائمة الجانبية (Sidebar):
-            - على الجوال: تخرج كدرج سلس من الحافة اليمنى (dir="rtl")
-            - على سطح المكتب: شريط ثابت قابل للتصغير (Rail mode: w-20 مقابل Expanded: w-72)
-        -->
+        <!-- نافذة شبكة الأيقونات للتنقل السريع -->
+        <IconNavigatorModal
+            :show="iconGridOpen"
+            :nav-groups="navGroups"
+            @close="closeIconGrid"
+        />
+
+        <!-- وضع التنقل بالأيقونات (Icon Mode Rail) -->
+        <IconBar
+            v-if="iconMode"
+            :nav-groups="navGroups"
+            :current-shift="currentShift"
+            :is-open="sidebarOpen"
+            @close="closeSidebar"
+            @toggle-mode="toggleNavMode"
+            @open-launcher="openIconGrid"
+        >
+            <template #bottom>
+                <Dropdown align="left" width="48" drop="up">
+                    <template #trigger>
+                        <button
+                            type="button"
+                            class="group flex h-11 w-11 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                            :title="user?.name"
+                            aria-label="قائمة الحساب"
+                        >
+                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-sm font-black text-white shadow-sm shadow-indigo-600/30 ring-2 ring-transparent transition group-hover:ring-indigo-400">
+                                {{ userInitial }}
+                            </span>
+                        </button>
+                    </template>
+                    <template #content>
+                        <div class="px-4 py-2 border-b border-gray-100 dark:border-slate-700">
+                            <p class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ user?.name }}</p>
+                            <p class="text-[11px] text-gray-500 dark:text-slate-400 truncate">{{ user?.email }}</p>
+                        </div>
+                        <button
+                            type="button"
+                            class="flex w-full items-center gap-2 px-4 py-2 text-start text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700/60"
+                            @click="toggleNavMode"
+                        >
+                            <NavIcon name="sidebar" class="h-4 w-4 text-indigo-500" />
+                            <span>العودة للقائمة الجانبية</span>
+                        </button>
+                        <DropdownLink :href="route('profile.edit')">
+                            الملف الشخصي
+                        </DropdownLink>
+                        <DropdownLink :href="route('logout')" method="post" as="button">
+                            تسجيل الخروج
+                        </DropdownLink>
+                    </template>
+                </Dropdown>
+            </template>
+        </IconBar>
+
+        <!-- الوضع التقليدي (القائمة الجانبية الموسعة) -->
         <aside
+            v-else
             id="app-sidebar"
             ref="sidebarEl"
             aria-label="القائمة الجانبية"
@@ -336,6 +434,14 @@ onUnmounted(() => {
                             <p class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ user?.name }}</p>
                             <p class="text-[11px] text-gray-500 dark:text-slate-400 truncate">{{ user?.email }}</p>
                         </div>
+                        <button
+                            type="button"
+                            class="flex w-full items-center gap-2 px-4 py-2 text-start text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700/60"
+                            @click="toggleNavMode"
+                        >
+                            <NavIcon name="grid" class="h-4 w-4 text-indigo-500" />
+                            <span>التحويل لوضع الأيقونات</span>
+                        </button>
                         <DropdownLink :href="route('profile.edit')">
                             الملف الشخصي
                         </DropdownLink>
@@ -356,16 +462,17 @@ onUnmounted(() => {
                     ref="menuButton"
                     type="button"
                     class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-600 shadow-xs transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700/70 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white lg:hidden"
-                    aria-label="فتح القائمة الجانبية"
-                    aria-controls="app-sidebar"
+                    aria-label="فتح قائمة التنقل"
+                    :aria-controls="iconMode ? 'app-iconbar' : 'app-sidebar'"
                     :aria-expanded="sidebarOpen"
                     @click="sidebarOpen = true"
                 >
                     <NavIcon name="menu" class="h-5 w-5" />
                 </button>
 
-                <!-- زر تبديل حجم القائمة الجانبية على سطح المكتب بجوار العنوان -->
+                <!-- زر تبديل حجم القائمة الجانبية على سطح المكتب بجوار العنوان (يظهر فقط في وضع الشريط الجانبي) -->
                 <button
+                    v-if="!iconMode"
                     type="button"
                     class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/60 bg-white/80 text-slate-500 shadow-xs transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700/60 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white lg:inline-flex"
                     :title="sidebarCollapsed ? 'توسيع القائمة (Ctrl+B)' : 'تصغير القائمة (Ctrl+B)'"
@@ -379,6 +486,28 @@ onUnmounted(() => {
                     <slot name="header" />
                 </div>
                 <div v-else class="flex-1"></div>
+
+                <!-- زر فتح لوحة الأيقونات السريعة للتنقل -->
+                <button
+                    type="button"
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-500 shadow-xs transition hover:bg-slate-100 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700/70 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-indigo-400"
+                    title="لوحة الأيقونات الشاملة (Alt+G)"
+                    aria-label="لوحة الأيقونات الشاملة (Alt+G)"
+                    @click="openIconGrid"
+                >
+                    <NavIcon name="grid" class="h-4.5 w-4.5" />
+                </button>
+
+                <!-- زر تبديل وضع التنقل (وضع الأيقونات / القائمة الجانبية) -->
+                <button
+                    type="button"
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-500 shadow-xs transition hover:bg-slate-100 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700/70 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-indigo-400"
+                    :title="iconMode ? 'التبديل لوضع القائمة الجانبية (Alt+I)' : 'التبديل لوضع الأيقونات (Alt+I)'"
+                    :aria-label="iconMode ? 'التبديل لوضع القائمة الجانبية (Alt+I)' : 'التبديل لوضع الأيقونات (Alt+I)'"
+                    @click="toggleNavMode"
+                >
+                    <NavIcon :name="iconMode ? 'sidebar' : 'layout-grid'" class="h-4.5 w-4.5" />
+                </button>
 
                 <!-- زر تبديل الوضع الداكن/الفاتح -->
                 <button
