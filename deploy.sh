@@ -77,8 +77,9 @@ if (( BUILD_ASSETS )); then
 fi
 
 CURRENT_STEP="database migration"
-step "Running database migrations"
+step "Running database migrations (central & tenants)"
 artisan migrate --force
+artisan tenants:migrate --force
 
 CURRENT_STEP="cache rebuild"
 step "Rebuilding caches"
