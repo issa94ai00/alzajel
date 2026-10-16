@@ -31,6 +31,9 @@ Route::middleware([
         return redirect()->route('dashboard');
     });
 
+    Route::get('/register-company', [\App\Http\Controllers\Central\TenantRegistrationController::class, 'create'])->name('tenant.register.create');
+    Route::post('/register-company', [\App\Http\Controllers\Central\TenantRegistrationController::class, 'register'])->name('tenant.register.store');
+
     Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

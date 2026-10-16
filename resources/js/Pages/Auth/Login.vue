@@ -142,6 +142,13 @@ const submit = () => {
                 </svg>
                 <span>{{ form.processing ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}</span>
             </button>
+
+            <div class="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">
+                تريد نظام صرافة لشركتك؟
+                <Link href="/register-company" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">
+                    تسجيل شركة جديدة
+                </Link>
+            </div>
         </form>
     </GuestLayout>
 </template>

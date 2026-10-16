@@ -12,6 +12,13 @@ use Illuminate\Validation\Rule;
 
 class TenantRegistrationController extends Controller
 {
+    public function create()
+    {
+        return \Inertia\Inertia::render('Auth/RegisterTenant', [
+            'centralDomain' => (parse_url(config('app.url'), PHP_URL_HOST) ?: 'bashar.damatech.sy'),
+        ]);
+    }
+
     public function plans()
     {
         $plans = Plan::where('is_active', true)->get();
@@ -65,9 +72,21 @@ class TenantRegistrationController extends Controller
             $user->assignRole('admin');
         });
 
-        $centralDomain = config('tenancy.central_domains')[2] ?? 'bashar.damatech.sy';
+        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?: 'bashar.damatech.sy';
         $scheme = request()->isSecure() ? 'https://' : 'http://';
         $tenantUrl = "{$scheme}{$subdomain}.{$centralDomain}";
+
+        if ($request->header('X-Inertia')) {
+            return \Inertia\Inertia::render('Auth/RegisterTenant', [
+                'centralDomain' => $centralDomain,
+                'createdTenant' => [
+                    'company_name' => $tenant->company_name,
+                    'subdomain'    => $subdomain,
+                    'admin_email'  => $validated['admin_email'],
+                    'login_url'    => "{$tenantUrl}/login",
+                ],
+            ]);
+        }
 
         return response()->json([
             'success' => true,

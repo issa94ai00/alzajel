@@ -24,3 +24,6 @@ Route::prefix('api/central')->group(function () {
     Route::get('/plans', [TenantRegistrationController::class, 'plans'])->name('central.plans');
     Route::post('/register-tenant', [TenantRegistrationController::class, 'register'])->name('central.register-tenant');
 });
+
+Route::get('/register-company', [TenantRegistrationController::class, 'create'])->name('tenant.register.create');
+Route::post('/register-company', [TenantRegistrationController::class, 'register'])->name('tenant.register.store');
