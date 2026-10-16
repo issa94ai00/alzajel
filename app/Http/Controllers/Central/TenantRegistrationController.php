@@ -27,6 +27,8 @@ class TenantRegistrationController extends Controller
 
     public function register(Request $request)
     {
+        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?: 'bashar.damatech.sy';
+
         $validated = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
             'subdomain'    => [
@@ -36,6 +38,13 @@ class TenantRegistrationController extends Controller
                 'max:50',
                 'alpha_dash',
                 'unique:domains,domain',
+                // النطاق يُخزَّن كاملاً، فيجب التحقق من عدم استخدامه أيضاً
+                function (string $attribute, mixed $value, \Closure $fail) use ($centralDomain) {
+                    $domain = strtolower($value) . '.' . $centralDomain;
+                    if (\DB::connection('mysql')->table('domains')->where('domain', $domain)->exists()) {
+                        $fail(__('validation.unique', ['attribute' => $attribute]));
+                    }
+                },
                 Rule::notIn(['www', 'admin', 'root', 'api', 'central', 'mail', 'app']),
             ],
             'admin_name'   => ['required', 'string', 'max:255'],
@@ -54,9 +63,9 @@ class TenantRegistrationController extends Controller
             'status'       => 'active',
         ]);
 
-        // 2. تسجيل النطاق الفرعي
+        // 2. تسجيل النطاق كاملاً (مثل issa.bashar.damatech.sy) ليتعرّف عليه InitializeTenancyByDomainOrSubdomain
         $tenant->domains()->create([
-            'domain' => $subdomain,
+            'domain' => "{$subdomain}.{$centralDomain}",
         ]);
 
         // 3. إنشاء المستخدم المدير الأول داخل قاعدة بيانات الشركة
@@ -72,7 +81,6 @@ class TenantRegistrationController extends Controller
             $user->assignRole('admin');
         });
 
-        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?: 'bashar.damatech.sy';
         $scheme = request()->isSecure() ? 'https://' : 'http://';
         $tenantUrl = "{$scheme}{$subdomain}.{$centralDomain}";
 

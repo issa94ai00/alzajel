@@ -51,7 +51,16 @@ class TenancyServiceProvider extends ServiceProvider
 
             // Domain events
             Events\CreatingDomain::class => [],
-            Events\DomainCreated::class => [],
+            Events\DomainCreated::class => [
+                // يطلب من خدمة systemd (bashar-tenant-certs.path) توسيع شهادة SSL لتشمل النطاق الجديد
+                function () {
+                    try {
+                        touch(storage_path('app/cert-sync.trigger'));
+                    } catch (\Throwable $e) {
+                        report($e); // الشهادة ستُحدَّث عبر المؤقت الدوري؛ لا نُفشل التسجيل
+                    }
+                },
+            ],
             Events\SavingDomain::class => [],
             Events\DomainSaved::class => [],
             Events\UpdatingDomain::class => [],
