@@ -10,7 +10,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 const props = defineProps({
     centralDomain: {
         type: String,
-        default: 'bashar.damatech.sy',
+        default: 'exchange.damatech.sy',
     },
     createdTenant: {
         type: Object,

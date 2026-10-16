@@ -16,7 +16,7 @@ Route::get('/', function () {
         'platform' => config('app.name', 'DamaTech SaaS'),
         'status' => 'online',
         'message' => 'Central Platform Landing & API',
-        'subdomains_format' => '{subdomain}.' . (parse_url(config('app.url'), PHP_URL_HOST) ?: 'bashar.damatech.sy'),
+        'subdomains_format' => '{subdomain}.' . (parse_url(config('app.url'), PHP_URL_HOST) ?: 'exchange.damatech.sy'),
     ]);
 })->name('central.landing');
 

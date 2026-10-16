@@ -15,7 +15,7 @@ class TenantRegistrationController extends Controller
     public function create()
     {
         return \Inertia\Inertia::render('Auth/RegisterTenant', [
-            'centralDomain' => (parse_url(config('app.url'), PHP_URL_HOST) ?: 'bashar.damatech.sy'),
+            'centralDomain' => (parse_url(config('app.url'), PHP_URL_HOST) ?: 'exchange.damatech.sy'),
         ]);
     }
 
@@ -27,7 +27,7 @@ class TenantRegistrationController extends Controller
 
     public function register(Request $request)
     {
-        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?: 'bashar.damatech.sy';
+        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?: 'exchange.damatech.sy';
 
         $validated = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
@@ -63,7 +63,7 @@ class TenantRegistrationController extends Controller
             'status'       => 'active',
         ]);
 
-        // 2. تسجيل النطاق كاملاً (مثل issa.bashar.damatech.sy) ليتعرّف عليه InitializeTenancyByDomainOrSubdomain
+        // 2. تسجيل النطاق كاملاً (مثل issa.exchange.damatech.sy) ليتعرّف عليه InitializeTenancyByDomainOrSubdomain
         $tenant->domains()->create([
             'domain' => "{$subdomain}.{$centralDomain}",
         ]);

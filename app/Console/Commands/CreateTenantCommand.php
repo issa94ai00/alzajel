@@ -26,7 +26,7 @@ class CreateTenantCommand extends Command
         $adminEmail = $this->argument('admin_email');
         $password = $this->option('password') ?: 'password123';
 
-        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?: 'bashar.damatech.sy';
+        $centralDomain = parse_url(config('app.url'), PHP_URL_HOST) ?: 'exchange.damatech.sy';
 
         if (Tenant::find($subdomain)) {
             $this->error("Tenant [{$subdomain}] already exists!");
@@ -42,7 +42,7 @@ class CreateTenantCommand extends Command
             'status' => 'active',
         ]);
 
-        // 2. Attach the full domain (e.g. issa.bashar.damatech.sy) so domain identification resolves it
+        // 2. Attach the full domain (e.g. issa.exchange.damatech.sy) so domain identification resolves it
         $tenant->domains()->create(['domain' => "{$subdomain}.{$centralDomain}"]);
         $this->info("Database and domains configured successfully.");
 

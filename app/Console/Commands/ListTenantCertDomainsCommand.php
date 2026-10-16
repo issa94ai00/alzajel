@@ -13,7 +13,7 @@ class ListTenantCertDomainsCommand extends Command
 
     public function handle(): int
     {
-        $base = parse_url(config('app.url'), PHP_URL_HOST) ?: 'bashar.damatech.sy';
+        $base = parse_url(config('app.url'), PHP_URL_HOST) ?: 'exchange.damatech.sy';
 
         $this->line($base);
 
