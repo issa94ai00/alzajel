@@ -45,5 +45,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(ExchangeRate::class, ExchangeRatePolicy::class);
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
+
+        if ($this->app->runningUnitTests()) {
+            $this->loadMigrationsFrom(database_path('migrations/tenant'));
+        }
     }
 }
