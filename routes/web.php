@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Central\TenantRegistrationController;
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,14 +12,8 @@ use Illuminate\Support\Facades\Route;
 | مسارات المحاسبة لكل عميل موجودة في routes/tenant.php
 */
 
-Route::get('/', function () {
-    return response()->json([
-        'platform' => config('app.name', 'DamaTech SaaS'),
-        'status' => 'online',
-        'message' => 'Central Platform Landing & API',
-        'subdomains_format' => '{subdomain}.' . (parse_url(config('app.url'), PHP_URL_HOST) ?: 'exchange.damatech.sy'),
-    ]);
-})->name('central.landing');
+Route::get('/', [LandingController::class, 'index'])->name('central.landing');
+Route::get('/landing', [LandingController::class, 'index'])->name('central.landing.view');
 
 Route::prefix('api/central')->group(function () {
     Route::get('/plans', [TenantRegistrationController::class, 'plans'])->name('central.plans');
