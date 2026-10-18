@@ -1,16 +1,8 @@
-import { ref, watchEffect } from 'vue';
+import { useTheme } from './useTheme';
 
-const isDark = ref(document.documentElement.classList.contains('dark'));
-
-watchEffect(() => {
-    document.documentElement.classList.toggle('dark', isDark.value);
-    localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
-});
-
+// واجهة قديمة مبقاة للتوافق؛ الحالة الفعلية في useTheme.
 export function useDarkMode() {
-    function toggle() {
-        isDark.value = !isDark.value;
-    }
+    const { isDark, toggleDark } = useTheme();
 
-    return { isDark, toggle };
+    return { isDark, toggle: toggleDark };
 }

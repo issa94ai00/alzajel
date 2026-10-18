@@ -70,7 +70,10 @@ const maxWidthClass = computed(() => {
         lg: 'sm:max-w-lg',
         xl: 'sm:max-w-xl',
         '2xl': 'sm:max-w-2xl',
-    }[props.maxWidth];
+        '3xl': 'sm:max-w-3xl',
+        '4xl': 'sm:max-w-4xl',
+        '5xl': 'sm:max-w-5xl',
+    }[props.maxWidth] || 'sm:max-w-2xl';
 });
 </script>
 
@@ -97,7 +100,7 @@ const maxWidthClass = computed(() => {
                     @click="close"
                 >
                     <div
-                        class="absolute inset-0 bg-gray-500 opacity-75"
+                        class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
                     />
                 </div>
             </Transition>
@@ -112,7 +115,7 @@ const maxWidthClass = computed(() => {
             >
                 <div
                     v-show="show"
-                    class="mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all dark:bg-slate-800 sm:mx-auto sm:w-full"
+                    class="mb-6 transform overflow-hidden rounded-3xl border border-slate-700/80 bg-white shadow-2xl transition-all dark:bg-slate-900 sm:mx-auto sm:w-full"
                     :class="maxWidthClass"
                 >
                     <slot v-if="showSlot" />

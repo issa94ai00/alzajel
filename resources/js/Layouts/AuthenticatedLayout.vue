@@ -8,7 +8,7 @@ import IconNavigatorModal from '@/Components/IconNavigatorModal.vue';
 import SidebarNavLink from '@/Components/SidebarNavLink.vue';
 import ShiftStatusBanner from '@/Components/ShiftStatusBanner.vue';
 import ReceiptPrompt from '@/Components/ReceiptPrompt.vue';
-import { useDarkMode } from '@/composables/useDarkMode';
+import ThemePicker from '@/Components/ThemePicker.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 
 defineProps({
@@ -16,7 +16,6 @@ defineProps({
     showShiftBanner: { type: Boolean, default: true },
 });
 
-const { isDark, toggle: toggleDarkMode } = useDarkMode();
 
 const page = usePage();
 const isAdmin = computed(() => page.props.auth.isAdmin);
@@ -228,7 +227,7 @@ onUnmounted(() => {
                     <template #trigger>
                         <button
                             type="button"
-                            class="group flex h-11 w-11 items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                            class="group flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                             :title="user?.name"
                             aria-label="قائمة الحساب"
                         >
@@ -267,16 +266,20 @@ onUnmounted(() => {
             id="app-sidebar"
             ref="sidebarEl"
             aria-label="القائمة الجانبية"
-            class="fixed inset-y-0 start-0 z-40 flex shrink-0 flex-col bg-slate-900 border-e border-white/10 shadow-2xl transition-all duration-300 ease-in-out dark:bg-slate-950 dark:border-slate-800 lg:static lg:shadow-none"
+            class="fixed inset-y-0 start-0 z-40 flex shrink-0 flex-col border-e border-slate-200/80 bg-white shadow-2xl transition-all duration-300 ease-in-out dark:border-white/5 dark:bg-slate-950 lg:relative lg:shadow-none"
             :class="[
                 sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0',
                 sidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
                 'w-72',
             ]"
         >
+            <!-- توهج علوي زخرفي + شبكة نقطية ناعمة تعزز الطابع العصري -->
+            <div class="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-indigo-500/[0.07] via-indigo-500/[0.02] to-transparent dark:from-indigo-500/15 dark:via-indigo-500/5"></div>
+            <div class="pointer-events-none absolute inset-0 text-slate-900 opacity-[0.04] dark:text-white dark:opacity-[0.035]" style="background-image: radial-gradient(currentColor 1px, transparent 1px); background-size: 20px 20px;"></div>
+
             <!-- رأس القائمة: الشعار وزر التصغير/الإغلاق -->
             <div
-                class="flex h-16 shrink-0 items-center border-b border-white/10 px-4 transition-all duration-300 dark:border-slate-800"
+                class="relative flex h-16 shrink-0 items-center border-b border-slate-200/80 px-4 transition-all duration-300 dark:border-white/5"
                 :class="sidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-between'"
             >
                 <!-- الشعار واسم النظام -->
@@ -285,15 +288,15 @@ onUnmounted(() => {
                     class="group flex min-w-0 items-center gap-3 rounded-xl p-1 transition hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                     :title="companyName"
                 >
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 shadow-md shadow-indigo-600/30 transition-transform group-hover:scale-105">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 shadow-lg shadow-indigo-600/40 ring-1 ring-inset ring-white/20 transition-transform duration-200 group-hover:scale-105 group-hover:ring-white/40">
                         <NavIcon name="currency" class="h-5 w-5 text-white" />
                     </span>
 
                     <span v-if="!sidebarCollapsed" class="min-w-0 transition-opacity duration-200">
-                        <span class="block truncate text-base font-black leading-tight tracking-tight text-white">
+                        <span class="block truncate text-base font-black leading-tight tracking-tight text-slate-900 dark:text-white">
                             {{ companyName }}
                         </span>
-                        <span class="block truncate text-[11px] font-medium leading-tight text-slate-400">
+                        <span class="block truncate text-[11px] font-medium leading-tight text-slate-500 dark:text-slate-400">
                             نظام إدارة الصرافة
                         </span>
                     </span>
@@ -304,7 +307,7 @@ onUnmounted(() => {
                     <!-- زر تصغير/توسيع الشريط لسطح المكتب -->
                     <button
                         type="button"
-                        class="hidden rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 lg:inline-flex"
+                        class="hidden rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 lg:inline-flex"
                         :title="sidebarCollapsed ? 'توسيع القائمة الجانبية (Ctrl+B)' : 'تصغير القائمة الجانبية (Ctrl+B)'"
                         aria-label="تبديل حجم القائمة الجانبية"
                         @click="toggleSidebarCollapse"
@@ -316,7 +319,7 @@ onUnmounted(() => {
                     <button
                         ref="closeButton"
                         type="button"
-                        class="rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 lg:hidden"
+                        class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 lg:hidden"
                         aria-label="إغلاق القائمة"
                         @click="closeSidebar"
                     >
@@ -328,12 +331,12 @@ onUnmounted(() => {
             <!-- مصغر حالة الوردية الحالية داخل القائمة -->
             <div
                 v-if="!sidebarCollapsed"
-                class="px-3 pt-3.5 pb-1 transition-all"
+                class="relative px-3 pt-3.5 pb-1 transition-all"
             >
                 <Link
                     v-if="currentShift"
                     :href="route('shifts.show', currentShift.id)"
-                    class="group flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-2.5 text-xs text-emerald-300 transition hover:bg-emerald-900/40 hover:border-emerald-500/50"
+                    class="group flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-xs text-emerald-700 ring-1 ring-inset ring-emerald-500/10 transition hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/10 dark:hover:border-emerald-400/40 dark:hover:bg-emerald-500/15"
                     title="الوردية الحالية مفتوحة — انقر لعرض التفاصيل"
                 >
                     <div class="flex items-center gap-2 min-w-0">
@@ -343,20 +346,20 @@ onUnmounted(() => {
                         </span>
                         <div class="min-w-0">
                             <span class="block truncate font-bold">وردية مفتوحة</span>
-                            <span class="block text-[10px] text-emerald-400/80 tabular-nums">{{ currentShift.business_date }}</span>
+                            <span class="block text-[10px] text-emerald-600/80 tabular-nums dark:text-emerald-400/80">{{ currentShift.business_date }}</span>
                         </div>
                     </div>
-                    <NavIcon name="chevron-left" class="h-3.5 w-3.5 shrink-0 text-emerald-400 opacity-60 transition-transform group-hover:-translate-x-0.5" />
+                    <NavIcon name="chevron-left" class="h-3.5 w-3.5 shrink-0 text-emerald-500 opacity-60 dark:text-emerald-400 transition-transform group-hover:-translate-x-0.5" />
                 </Link>
 
                 <Link
                     v-else
                     :href="route('shifts.create')"
-                    class="flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-950/40 p-2.5 text-xs text-amber-300 transition hover:bg-amber-900/40"
+                    class="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800 ring-1 ring-inset ring-amber-500/10 transition hover:border-amber-300 hover:bg-amber-100 dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/10 dark:hover:border-amber-400/40 dark:hover:bg-amber-500/15"
                     title="لا توجد وردية مفتوحة — انقر لفتح وردية"
                 >
                     <div class="flex items-center gap-2 min-w-0">
-                        <span class="h-2 w-2 shrink-0 rounded-full bg-amber-400"></span>
+                        <span class="h-2 w-2 shrink-0 rounded-full bg-amber-500 dark:bg-amber-400"></span>
                         <span class="truncate font-bold">لا توجد وردية مفتوحة</span>
                     </div>
                     <span class="text-[10px] font-bold underline shrink-0">فتح</span>
@@ -364,7 +367,7 @@ onUnmounted(() => {
             </div>
 
             <!-- روابط التنقل الرئيسية -->
-            <nav class="flex-1 overflow-y-auto px-2.5 py-3 space-y-4" aria-label="التنقل الرئيسي">
+            <nav class="relative flex-1 overflow-y-auto px-2.5 py-3 space-y-4" aria-label="التنقل الرئيسي">
                 <div
                     v-for="group in navGroups"
                     :key="group.key"
@@ -373,7 +376,7 @@ onUnmounted(() => {
                     <!-- عنوان المجموعة (يُخفى في الوضع المنكمش) -->
                     <p
                         v-if="!sidebarCollapsed && group.label"
-                        class="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500"
+                        class="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500"
                     >
                         {{ group.label }}
                     </p>
@@ -381,7 +384,7 @@ onUnmounted(() => {
                     <!-- خط فاصل لطيف في الوضع المنكمش -->
                     <div
                         v-else-if="sidebarCollapsed && group.label"
-                        class="mx-auto my-2 w-8 border-t border-white/10 dark:border-slate-800"
+                        class="mx-auto my-2 w-8 border-t border-slate-200 dark:border-white/5"
                     />
 
                     <SidebarNavLink
@@ -401,31 +404,31 @@ onUnmounted(() => {
             </nav>
 
             <!-- أسفل القائمة الجانبية: بطاقة المستخدم وقائمة الحساب -->
-            <div class="shrink-0 border-t border-white/10 p-2.5 transition-all dark:border-slate-800">
+            <div class="relative shrink-0 border-t border-slate-200/80 p-2.5 transition-all dark:border-white/5">
                 <Dropdown align="left" width="48" drop="up">
                     <template #trigger>
                         <button
                             type="button"
-                            class="group flex w-full items-center gap-3 rounded-xl p-2 text-start transition hover:bg-white/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+                            class="group flex w-full items-center gap-3 rounded-xl border border-transparent p-2 text-start transition hover:border-slate-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:hover:border-white/10 dark:hover:bg-white/5 dark:focus-visible:ring-offset-slate-950"
                             :class="sidebarCollapsed ? 'justify-center' : ''"
                             :title="user?.name"
                             aria-label="قائمة الحساب"
                         >
                             <!-- الصورة الرمزية للمستخدم -->
-                            <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-sm font-black text-white shadow-sm shadow-indigo-600/30">
+                            <span class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-black text-white shadow-sm shadow-indigo-600/30 ring-1 ring-inset ring-white/20">
                                 {{ userInitial }}
                             </span>
 
                             <span v-if="!sidebarCollapsed" class="min-w-0 flex-1">
-                                <span class="block truncate text-sm font-bold text-white group-hover:text-indigo-200 transition-colors">
+                                <span class="block truncate text-sm font-bold text-slate-900 transition-colors group-hover:text-indigo-700 dark:text-white dark:group-hover:text-indigo-200">
                                     {{ user?.name }}
                                 </span>
-                                <span class="block truncate text-[11px] text-slate-400">
+                                <span class="block truncate text-[11px] text-slate-500 dark:text-slate-400">
                                     {{ isAdmin ? 'مدير النظام' : 'صراف' }}
                                 </span>
                             </span>
 
-                            <NavIcon v-if="!sidebarCollapsed" name="chevron-down" class="h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:text-white" />
+                            <NavIcon v-if="!sidebarCollapsed" name="chevron-down" class="h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:text-slate-700 dark:group-hover:text-white" />
                         </button>
                     </template>
 
@@ -509,16 +512,8 @@ onUnmounted(() => {
                     <NavIcon :name="iconMode ? 'sidebar' : 'layout-grid'" class="h-4.5 w-4.5" />
                 </button>
 
-                <!-- زر تبديل الوضع الداكن/الفاتح -->
-                <button
-                    type="button"
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200/70 bg-white text-slate-500 shadow-xs transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700/70 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-white"
-                    :title="isDark ? 'التحويل للوضع الفاتح' : 'التحويل للوضع الداكن'"
-                    :aria-label="isDark ? 'التحويل للوضع الفاتح' : 'التحويل للوضع الداكن'"
-                    @click="toggleDarkMode"
-                >
-                    <NavIcon :name="isDark ? 'sun' : 'moon'" class="h-4.5 w-4.5 transition-transform duration-200 hover:rotate-12" />
-                </button>
+                <!-- المظهر (فاتح/داكن/تلقائي) ولون التمييز -->
+                <ThemePicker />
             </header>
 
             <ShiftStatusBanner v-if="showShiftBanner" />

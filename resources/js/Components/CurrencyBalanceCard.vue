@@ -28,11 +28,15 @@ const hasDecreased = computed(() => diff.value < 0);
 
 // أيقونات وتدرجات مميزة لكل عملة
 const currencyTheme = computed(() => {
+    const glass = 'border-white/60 bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-slate-800/50';
+    const glow = 'bg-slate-400/0';
+
     if (props.isBase) {
         return {
-            gradient: 'from-indigo-600 to-indigo-800 text-white shadow-indigo-600/30',
-            border: 'border-indigo-300/80 ring-1 ring-indigo-500/20 dark:border-indigo-700/60',
-            bg: 'bg-gradient-to-br from-indigo-50/90 via-white to-indigo-50/40 dark:from-slate-800 dark:via-slate-800 dark:to-indigo-950/30',
+            gradient: 'from-indigo-600 to-violet-700 text-white shadow-indigo-600/30',
+            border: 'border-indigo-300/70 ring-1 ring-inset ring-indigo-500/20 dark:border-indigo-700/50',
+            bg: 'bg-gradient-to-br from-indigo-50/80 via-white/70 to-violet-50/50 backdrop-blur-xl dark:from-slate-800/60 dark:via-slate-800/50 dark:to-indigo-950/40',
+            glow: 'bg-indigo-500/15 group-hover:bg-indigo-500/25',
         };
     }
 
@@ -40,54 +44,66 @@ const currencyTheme = computed(() => {
     if (c === 'USD') {
         return {
             gradient: 'from-emerald-500 to-emerald-700 text-white shadow-emerald-500/25',
-            border: 'border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700',
-            bg: 'bg-white dark:bg-slate-800/90',
+            border: 'border-white/60 hover:border-emerald-300 dark:border-white/10 dark:hover:border-emerald-700',
+            bg: glass,
+            glow: 'bg-emerald-500/10 group-hover:bg-emerald-500/20',
         };
     }
     if (c === 'EUR') {
         return {
             gradient: 'from-blue-500 to-blue-700 text-white shadow-blue-500/25',
-            border: 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700',
-            bg: 'bg-white dark:bg-slate-800/90',
+            border: 'border-white/60 hover:border-blue-300 dark:border-white/10 dark:hover:border-blue-700',
+            bg: glass,
+            glow: 'bg-blue-500/10 group-hover:bg-blue-500/20',
         };
     }
     if (c === 'SAR' || c === 'AED' || c === 'QAR' || c === 'KWD') {
         return {
             gradient: 'from-amber-500 to-amber-700 text-white shadow-amber-500/25',
-            border: 'border-slate-200 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-700',
-            bg: 'bg-white dark:bg-slate-800/90',
+            border: 'border-white/60 hover:border-amber-300 dark:border-white/10 dark:hover:border-amber-700',
+            bg: glass,
+            glow: 'bg-amber-500/10 group-hover:bg-amber-500/20',
         };
     }
     if (c === 'TRY') {
         return {
             gradient: 'from-rose-500 to-rose-700 text-white shadow-rose-500/25',
-            border: 'border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-700',
-            bg: 'bg-white dark:bg-slate-800/90',
+            border: 'border-white/60 hover:border-rose-300 dark:border-white/10 dark:hover:border-rose-700',
+            bg: glass,
+            glow: 'bg-rose-500/10 group-hover:bg-rose-500/20',
         };
     }
     if (c === 'GBP') {
         return {
             gradient: 'from-purple-500 to-purple-700 text-white shadow-purple-500/25',
-            border: 'border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-700',
-            bg: 'bg-white dark:bg-slate-800/90',
+            border: 'border-white/60 hover:border-purple-300 dark:border-white/10 dark:hover:border-purple-700',
+            bg: glass,
+            glow: 'bg-purple-500/10 group-hover:bg-purple-500/20',
         };
     }
 
     return {
         gradient: 'from-slate-600 to-slate-800 text-white shadow-slate-600/25',
-        border: 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600',
-        bg: 'bg-white dark:bg-slate-800/90',
+        border: 'border-white/60 hover:border-slate-300 dark:border-white/10 dark:hover:border-slate-600',
+        bg: glass,
+        glow,
     };
 });
 </script>
 
 <template>
     <div
-        class="group relative overflow-hidden rounded-2xl border p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+        class="group relative overflow-hidden rounded-2xl border p-5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
         :class="[currencyTheme.border, currencyTheme.bg]"
     >
+        <!-- هالة لونية زخرفية خلف البطاقة -->
+        <div
+            class="pointer-events-none absolute -end-10 -top-10 h-28 w-28 rounded-full blur-2xl transition-colors duration-300"
+            :class="currencyTheme.glow"
+        ></div>
+
         <!-- الرأس: رمز العملة واسمها وشارة التغير -->
-        <div class="flex items-center justify-between gap-2">
+        <div class="relative flex items-center justify-between gap-2">
             <div class="flex items-center gap-3 min-w-0">
                 <!-- أيقونة العملة مع تدرج لوني وظل -->
                 <span
@@ -148,7 +164,7 @@ const currencyTheme = computed(() => {
         </div>
 
         <!-- الرصيد الحالي المتاح -->
-        <div class="mt-4">
+        <div class="relative mt-4">
             <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 الرصيد المتاح حالياً
             </span>
@@ -163,7 +179,7 @@ const currencyTheme = computed(() => {
         </div>
 
         <!-- معلومات الرصيد الافتتاحي وزر صرافة سريعة -->
-        <div class="mt-3.5 flex items-center justify-between border-t border-dashed border-slate-200/80 pt-3 text-xs dark:border-slate-700/80">
+        <div class="relative mt-3.5 flex items-center justify-between border-t border-dashed border-slate-200/80 pt-3 text-xs dark:border-slate-700/80">
             <div v-if="opening !== null" class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
                 <NavIcon name="clock" class="h-3.5 w-3.5 text-slate-400" />
                 <span>الافتتاحي: </span>

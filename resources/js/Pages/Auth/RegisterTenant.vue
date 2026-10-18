@@ -16,6 +16,14 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    selectedPlanId: {
+        type: Number,
+        default: null,
+    },
+    plans: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const showPassword = ref(false);
@@ -27,6 +35,7 @@ const form = useForm({
     admin_email: '',
     password: '',
     password_confirmation: '',
+    plan_id: props.selectedPlanId || (props.plans?.length ? props.plans[0].id : null),
 });
 
 const submit = () => {
@@ -71,7 +80,7 @@ const submit = () => {
             <div class="mt-6 space-y-3">
                 <a
                     :href="createdTenant.login_url"
-                    class="flex w-full items-center justify-center gap-2 rounded-lg bg-[#141b4d] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-950/20 transition hover:bg-[#0d1338] dark:bg-indigo-600 dark:hover:bg-indigo-500"
+                    class="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:bg-indigo-700 dark:hover:bg-indigo-500"
                 >
                     <span>الدخول إلى لوحة تحكم شركتك</span>
                     <NavIcon name="arrow-left" class="h-4 w-4" />
@@ -103,6 +112,20 @@ const submit = () => {
             </div>
 
             <form @submit.prevent="submit" class="space-y-4">
+                <!-- Plan Selection if available -->
+                <div v-if="plans && plans.length > 0">
+                    <InputLabel for="plan_id" value="باقة الاشتراك المطلوبة" />
+                    <select
+                        id="plan_id"
+                        v-model="form.plan_id"
+                        class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs sm:text-sm font-semibold dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    >
+                        <option v-for="p in plans" :key="p.id" :value="p.id">
+                            {{ p.name }} — ${{ Number(p.price).toFixed(2) }}/شهرياً
+                        </option>
+                    </select>
+                </div>
+
                 <!-- Company Name -->
                 <div>
                     <InputLabel for="company_name" value="اسم شركة الصرافة" />
@@ -175,7 +198,7 @@ const submit = () => {
                         <TextInput
                             id="password"
                             :type="showPassword ? 'text' : 'password'"
-                            class="block w-full pe-10"
+                            class="block w-full pl-10"
                             dir="ltr"
                             v-model="form.password"
                             required
@@ -183,6 +206,7 @@ const submit = () => {
                         <button
                             type="button"
                             class="absolute inset-y-0 end-0 flex items-center pe-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                            :aria-label="showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'"
                             @click="showPassword = !showPassword"
                         >
                             <NavIcon :name="showPassword ? 'eye-off' : 'eye'" class="h-4 w-4" />
@@ -208,7 +232,7 @@ const submit = () => {
                 <div class="pt-2">
                     <button
                         type="submit"
-                        class="flex w-full items-center justify-center gap-2 rounded-lg bg-[#141b4d] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-950/20 transition hover:bg-[#0d1338] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+                        class="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-indigo-500"
                         :disabled="form.processing"
                     >
                         <svg v-if="form.processing" class="h-4.5 w-4.5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
@@ -219,11 +243,17 @@ const submit = () => {
                     </button>
                 </div>
 
-                <div class="pt-2 text-center text-xs text-slate-500 dark:text-slate-400">
-                    لديك حساب بالفعل؟
-                    <Link href="/login" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">
-                        تسجيل الدخول
+                <div class="pt-2 flex items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                    <Link href="/" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                        العودة للرئيسية
                     </Link>
+                    <span>•</span>
+                    <div>
+                        لديك حساب بالفعل؟
+                        <Link href="/login" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">
+                            تسجيل الدخول
+                        </Link>
+                    </div>
                 </div>
             </form>
         </div>

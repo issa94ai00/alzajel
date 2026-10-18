@@ -3,14 +3,25 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title inertia>{{ config('app.name', 'DamaTech') }}</title>
 
+        <meta name="theme-color" content="#ffffff">
+
         <script>
+            // يطابق useTheme.js — يُطبَّق قبل الرسم لتجنّب وميض الوضع الخاطئ
             (function () {
-                var stored = localStorage.getItem('theme');
-                var dark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                document.documentElement.classList.toggle('dark', dark);
+                var mode = null, accent = null;
+                try {
+                    mode = localStorage.getItem('theme');
+                    accent = localStorage.getItem('theme-accent');
+                } catch (e) {}
+                var dark = mode === 'dark' || (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                var root = document.documentElement;
+                root.classList.toggle('dark', dark);
+                if (accent) root.setAttribute('data-accent', accent);
+                if (dark) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
             })();
         </script>
 

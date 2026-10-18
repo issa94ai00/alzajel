@@ -125,7 +125,7 @@ const submit = () => {
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="text-sm font-medium text-slate-500 underline underline-offset-4 transition hover:text-[#141b4d] dark:text-slate-400 dark:hover:text-slate-200"
+                    class="text-sm font-medium text-slate-500 underline underline-offset-4 transition hover:text-indigo-600 dark:text-slate-400 dark:hover:text-slate-200"
                 >
                     نسيت كلمة المرور؟
                 </Link>
@@ -133,7 +133,7 @@ const submit = () => {
 
             <button
                 type="submit"
-                class="flex w-full items-center justify-center gap-2.5 rounded-lg bg-[#141b4d] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-950/20 transition hover:bg-[#0d1338] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60 dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-500 dark:focus-visible:ring-offset-slate-900"
+                class="flex w-full items-center justify-center gap-2.5 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-indigo-500 dark:focus-visible:ring-offset-slate-900"
                 :disabled="form.processing"
             >
                 <svg v-if="form.processing" class="h-4.5 w-4.5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
@@ -143,11 +143,17 @@ const submit = () => {
                 <span>{{ form.processing ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}</span>
             </button>
 
-            <div class="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">
-                تريد نظام صرافة لشركتك؟
-                <Link href="/register-company" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">
-                    تسجيل شركة جديدة
+            <div class="mt-4 flex items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                <Link href="/" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                    العودة للرئيسية
                 </Link>
+                <span>•</span>
+                <div>
+                    تريد نظام صرافة لشركتك؟
+                    <Link href="/register-company" class="font-semibold text-indigo-600 hover:underline dark:text-indigo-400">
+                        تسجيل شركة جديدة
+                    </Link>
+                </div>
             </div>
         </form>
     </GuestLayout>

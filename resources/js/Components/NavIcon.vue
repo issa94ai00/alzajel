@@ -87,6 +87,10 @@ defineProps({
             <circle cx="12" cy="8" r="3.2" />
             <path d="M5 19c0-3.5 3-6 7-6s7 2.5 7 6" />
         </template>
+        <template v-else-if="name === 'copy'">
+            <rect x="9" y="9" width="11" height="11" rx="2" />
+            <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
+        </template>
         <template v-else-if="name === 'check'">
             <polyline points="5,13 10,18 19,7" />
         </template>
@@ -143,6 +147,10 @@ defineProps({
             <line x1="7" y1="17" x2="17" y2="7" />
             <polyline points="7 7 17 7 17 17" />
         </template>
+        <template v-else-if="name === 'arrow-left'">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="11,18 5,12 11,6" />
+        </template>
         <template v-else-if="name === 'arrow-down-left'">
             <line x1="17" y1="7" x2="7" y2="17" />
             <polyline points="17 17 7 17 7 7" />
@@ -160,6 +168,32 @@ defineProps({
         </template>
         <template v-else-if="name === 'refresh'">
             <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+        </template>
+        <template v-else-if="name === 'shield'">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </template>
+        <template v-else-if="name === 'shield-check'">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="m9 12 2 2 4-4" />
+        </template>
+        <template v-else-if="name === 'sparkles'">
+            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z" />
+        </template>
+        <template v-else-if="name === 'building'">
+            <rect x="5" y="3" width="14" height="18" rx="1.5" />
+            <path d="M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1" />
+            <path d="M10.5 21v-3h3v3" />
+        </template>
+        <template v-else-if="name === 'monitor'">
+            <rect x="3" y="4" width="18" height="12" rx="2" />
+            <line x1="8" y1="20" x2="16" y2="20" />
+            <line x1="12" y1="16" x2="12" y2="20" />
+        </template>
+        <template v-else-if="name === 'palette'">
+            <path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.9 0-.5-.2-.9-.5-1.3-.3-.3-.5-.8-.5-1.3 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.3-4-7.7-9-7.7z" />
+            <circle cx="7.5" cy="11.5" r="1" />
+            <circle cx="10" cy="7.5" r="1" />
+            <circle cx="14.5" cy="7.5" r="1" />
         </template>
     </svg>
 </template>
